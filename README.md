@@ -36,5 +36,4 @@ Yerel build/cache/veri kalintilari repoya alinmaz:
 
 ## GitHub
 
-Planlanan repo adi: `enesky/headless-macbook-tools`
-
+[enesky/headless-macbook-tools](https://github.com/enesky/headless-macbook-tools)
