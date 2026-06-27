@@ -29,6 +29,10 @@ Side Screen, Android tabletinize gerçek ikinci ekran işlevi kazandırır. En d
 
 Apple Sidecar yalnızca iPad ile çalışırken Side Screen, Android tabletleri donanım hızlandırmalı H.265 aktarımı, USB'de 16 ms altı işlem hattı gecikmesi ve dokunmatik giriş desteğiyle macOS için genişletilmiş ekrana dönüştürür. Ekranı yansıtmak yerine gerçek bir sanal ekran oluşturur.
 
+### Bu Repodaki Sürüm
+
+Side Screen, [açık kaynak bir proje ve uygulamadır](https://github.com/tranvuongquocdat/SideScreen). Headless MacBook Tools içindeki özelleştirilmiş sürüm, headless kullanım için otomasyon ve auto-connect akışları ekler. Bu geliştirmeler; `sidescreen://auto-start-usb`, `--auto-start-usb` başlatma seçeneği, uygulama içi USB auto-start işleyişi ve [`Auto-SideScreen-USB`](../Auto-SideScreen-USB/README.tr.md) altındaki yardımcı launcher/UI otomasyon scriptlerini kapsar.
+
 Ayrıntılı bilgi için [sidescreen.dev](https://sidescreen.dev) adresini ziyaret edin.
 
 ## Özellikler

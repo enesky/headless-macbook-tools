@@ -49,6 +49,10 @@ While Apple's Sidecar only works with iPads, millions of Android tablets sit unu
 
 Built entirely open-source, Side Screen is designed to be fast, lightweight, and seamlessly integrated.
 
+### This Repository's Version
+
+Side Screen is an [open-source project and application](https://github.com/tranvuongquocdat/SideScreen). The customized version included in Headless MacBook Tools adds automation and auto-connect workflows for headless operation. These additions include `sidescreen://auto-start-usb`, the `--auto-start-usb` launch option, in-app USB auto-start handling, and companion launcher/UI automation scripts under [`Auto-SideScreen-USB`](../Auto-SideScreen-USB/README.md).
+
 For full details, features, and documentation, please visit **[sidescreen.dev](https://sidescreen.dev)**
 
 <p align="right"><a href="#readme-top">↑ Back to top</a></p>

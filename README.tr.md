@@ -16,7 +16,11 @@ Bu repo, `MacOS Apps` klasorunde gelistirilen araclari tek yerde toplar. Amac; k
 | [Bag Sleep Guard](bag-sleep-guard/README.tr.md) | LaunchAgent scripti | Cantada/kapaliyken yanlislikla uyanan MacBook'u input yoksa tekrar uyutur. |
 | [Headless Auto Re-Sleep](headless-auto-resleep/README.tr.md) | Swift helper + installer | Headless uyanmalarda ekran/input kontrolu yapip gerekirse otomatik tekrar uyutur. |
 | [Lock Screen Sayer](lock-screen-sayer/README.tr.md) | Swift helper + LaunchAgent | Ekran kilitlenince sesli bildirim verir. |
-| [SideScreen](SideScreen/README.tr.md) | macOS + Android app | Android tablet/telefonu macOS icin ikinci ekran olarak kullanmaya yarayan app ve yardimci kaynaklar. |
+| [SideScreen](SideScreen/README.tr.md) | Acik kaynak macOS + Android app | Android cihazi ikinci ekran olarak kullanir; bu surum headless kullanim icin otomasyon ve auto-connect akislari ekler. |
+
+## Ozellestirilmis SideScreen
+
+[SideScreen](https://github.com/tranvuongquocdat/SideScreen), acik kaynak bir macOS ve Android uygulamasidir. Bu repodaki surum, upstream projeyi headless kullanim odakli otomasyon ve auto-connect akislariyla genisletir. Eklemeler arasinda URL scheme ve launch argumanlariyla USB auto-start destegi ile yardimci launcher ve UI otomasyon scriptleri bulunur.
 
 ## Repo kapsami
 
