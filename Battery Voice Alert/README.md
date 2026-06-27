@@ -4,7 +4,7 @@
 
 [Main repository: Headless MacBook Tools](../README.md)
 
-Announces battery warnings while the MacBook is discharging. This is not an app; it is a small script run once per minute by a macOS `LaunchAgent`.
+Announces battery warnings while the MacBook is discharging. This is not an app; it is a small script run once every five minutes by a macOS `LaunchAgent`.
 
 ## Install
 

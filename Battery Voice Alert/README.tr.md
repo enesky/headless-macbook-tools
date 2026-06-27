@@ -5,7 +5,7 @@
 [Ana repo: Headless MacBook Tools](../README.tr.md)
 
 MacBook bataryasi duserken sesli uyari verir. App degil; macOS `LaunchAgent`
-olarak dakikada bir calisan kucuk bir script.
+olarak bes dakikada bir calisan kucuk bir script.
 
 ## Kurulum
 

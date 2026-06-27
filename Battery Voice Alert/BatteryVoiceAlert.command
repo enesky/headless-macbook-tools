@@ -49,7 +49,7 @@ check() {
   [[ "$last" == "$b" ]] && exit 0
 
   echo "$b" > "$state"
-  /usr/bin/say "Batarya yüzde $p. Şarja tak."
+  /usr/bin/say "Battery low. Please connect the charger."
 }
 
 install_agent() {
@@ -68,20 +68,20 @@ install_agent() {
     <string>check</string>
   </array>
   <key>RunAtLoad</key><true/>
-  <key>StartInterval</key><integer>60</integer>
+  <key>StartInterval</key><integer>300</integer>
 </dict>
 </plist>
 PLIST
   /bin/launchctl bootout "gui/$(/usr/bin/id -u)" "$plist" 2>/dev/null || true
   /bin/launchctl bootstrap "gui/$(/usr/bin/id -u)" "$plist"
   /bin/launchctl enable "gui/$(/usr/bin/id -u)/$label"
-  echo "Kuruldu. Test: $bin check"
+  echo "Installed. Test: $bin check"
 }
 
 uninstall_agent() {
   /bin/launchctl bootout "gui/$(/usr/bin/id -u)" "$plist" 2>/dev/null || true
   /bin/rm -f "$plist" "$bin"
-  echo "Kaldırıldı."
+  echo "Removed."
 }
 
 self_test() {
@@ -104,5 +104,5 @@ case "${1:-install}" in
   uninstall) uninstall_agent ;;
   check) check ;;
   self-test) self_test ;;
-  *) echo "Kullanım: $0 [install|uninstall|check|self-test]" >&2; exit 2 ;;
+  *) echo "Usage: $0 [install|uninstall|check|self-test]" >&2; exit 2 ;;
 esac
