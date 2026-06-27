@@ -1,38 +1,40 @@
 # Headless MacBook Tools
 
-Headless veya kisayol odakli MacBook kullaniminda ihtiyac duydugumuz macOS app, LaunchAgent ve otomasyon scriptleri.
+[English](README.md) | [Türkçe](README.tr.md)
 
-Bu repo, `MacOS Apps` klasorunde gelistirilen araclari tek yerde toplar. Amac; kurulabilir scriptleri, kucuk Swift launcher uygulamalarini, launchd plist dosyalarini ve SideScreen yardimci otomasyonlarini kaybolmadan saklamak.
+A collection of macOS apps, LaunchAgents, and automation scripts for headless and shortcut-driven MacBook workflows.
 
-## Araclar
+This repository consolidates the tools developed in the `MacOS Apps` directory. It keeps installable scripts, small Swift launcher apps, launchd property lists, and SideScreen automation utilities in one place.
 
-| Arac | Tip | Ne ise yarar? |
+## Tools
+
+| Tool | Type | Purpose |
 | --- | --- | --- |
-| [Auto-Airplay](Auto-Airplay/README.md) | Swift launcher + shell scriptleri | AirPlay / Screen Mirroring alicilarini bulur, sesli okur ve klavyeden secimle baglanmayi dener. |
-| [Auto-SideScreen-USB](Auto-SideScreen-USB/README.md) | Swift launcher + UI automation | SideScreen'i USB modunda tek kisayolla baslatir. |
-| [Battery Voice Alert](Battery%20Voice%20Alert/README.md) | LaunchAgent scripti | MacBook bataryasi belirli esiklerin altina dusunce sesli uyari verir. |
-| [Bag Sleep Guard](bag-sleep-guard/README.md) | LaunchAgent scripti | Cantada/kapaliyken yanlislikla uyanan MacBook'u input yoksa tekrar uyutur. |
-| [Headless Auto Re-Sleep](headless-auto-resleep/README.md) | Swift helper + installer | Headless uyanmalarda ekran/input kontrolu yapip gerekirse otomatik tekrar uyutur. |
-| [Lock Screen Sayer](lock-screen-sayer/README.md) | Swift helper + LaunchAgent | Ekran kilitlenince sesli bildirim verir. |
-| [SideScreen](SideScreen/README.md) | macOS + Android app | Android tablet/telefonu macOS icin ikinci ekran olarak kullanmaya yarayan app ve yardimci kaynaklar. |
+| [Auto-Airplay](Auto-Airplay/README.md) | Swift launcher + shell scripts | Finds AirPlay / Screen Mirroring receivers, reads them aloud, and lets you connect using a keyboard selection. |
+| [Auto-SideScreen-USB](Auto-SideScreen-USB/README.md) | Swift launcher + UI automation | Starts SideScreen in USB mode with a single shortcut. |
+| [Battery Voice Alert](Battery%20Voice%20Alert/README.md) | LaunchAgent script | Announces battery warnings when the MacBook drops below configured thresholds. |
+| [Bag Sleep Guard](bag-sleep-guard/README.md) | LaunchAgent script | Puts a closed or bagged MacBook back to sleep when it wakes without user input. |
+| [Headless Auto Re-Sleep](headless-auto-resleep/README.md) | Swift helper + installer | Checks display and input state after a headless wake, then returns the Mac to sleep when appropriate. |
+| [Lock Screen Sayer](lock-screen-sayer/README.md) | Swift helper + LaunchAgent | Announces when the screen is locked. |
+| [SideScreen](SideScreen/README.md) | macOS + Android app | Uses an Android tablet or phone as a second display for macOS. |
 
-## Repo kapsami
+## Repository Scope
 
-Bu repoda kaynak kodlar, scriptler, plist ornekleri, README dosyalari ve gerekli proje dosyalari tutulur.
+The repository includes source code, scripts, property-list examples, documentation, and required project files.
 
-Yerel build/cache/veri kalintilari repoya alinmaz:
+Local build output, caches, and metadata are excluded:
 
 - `.git/`
 - `.build/`
 - `.clang-module-cache/`
 - `.DS_Store`
 
-## Genel notlar
+## Notes
 
-- Bu araclar macOS odaklidir.
-- UI otomasyonu kullanan araclar icin `Privacy & Security > Accessibility` ve `Automation` izinleri gerekebilir.
-- Uyku, ekran kilidi, AirPlay ve SideScreen akislari cihaza ve macOS surumune bagli olarak izin veya arayuz farklarindan etkilenebilir.
-- Kurulum/kaldirma adimlari her aracin kendi README dosyasindadir.
+- These tools target macOS.
+- UI automation may require permissions under `Privacy & Security > Accessibility` and `Automation`.
+- Sleep, screen-lock, AirPlay, and SideScreen behavior can vary by device and macOS version.
+- Installation and removal instructions are documented in each tool's README.
 
 ## GitHub
 

@@ -1,97 +1,96 @@
 # Auto-Airplay
 
-[Ana repo: Headless MacBook Tools](../README.md)
+[English](README.md) | [Türkçe](README.tr.md)
 
-Auto-Airplay, macOS'ta AirPlay / Screen Mirroring alicilarini bulup klavyeden tek tusla secmeyi kolaylastiran kucuk bir otomasyon paketidir.
+[Main repository: Headless MacBook Tools](../README.md)
 
-Ana kullanim senaryosu: Mac'i headless veya hizli-kisayol odakli kullanirken ekrani bir AirPlay alicisina yansitmak. Uygulama acilinca kisa bir bip sesi verir, uygun AirPlay cihazlarini tarar, cihaz isimlerini sesli okur ve secim icin Terminal'de sayi bekler.
+Auto-Airplay is a small macOS automation package for discovering AirPlay / Screen Mirroring receivers and selecting one with a single key.
 
-## Ne ise yarar?
+It is designed for headless or shortcut-driven Mac use. When launched, it plays a short beep, scans for available AirPlay devices, reads their names aloud, and waits for a numeric selection in Terminal.
 
-- macOS Screen Mirroring arayuzundeki AirPlay alicilarini listeler.
-- Cihaz listesini `~/.airplay_devices` dosyasina yazar.
-- Cihazlari sesli okur.
-- Terminal'den `1`, `2`, `3` gibi tek tusla secim alir.
-- Secilen cihaza AppleScript / System Events uzerinden baglanmayi dener.
-- Hata durumunda sesli ve log tabanli geri bildirim verir.
+## Features
 
-## Klasor yapisi
+- Lists receivers exposed by the macOS Screen Mirroring interface.
+- Writes the device list to `~/.airplay_devices`.
+- Reads device names aloud.
+- Accepts a single-key selection such as `1`, `2`, or `3` in Terminal.
+- Attempts to connect through AppleScript and System Events.
+- Provides spoken and file-based error feedback.
+
+## Directory Layout
 
 ```text
 Auto-Airplay/
   Auto-Airplay.app              macOS launcher app
-  StartAirPlay.swift            launcher kaynak kodu
-  run-airplay.sh                app tarafindan calistirilan ana wrapper
-  Airplay.sh                    cihaz kesfi + secim akisinin giris noktasi
-  ListAirplayDevices.sh         Screen Mirroring cihazlarini bulur
-  PickAirplayDevice.sh          Terminal'de tek tus secimi alir
-  ConnectAirplay.sh             secilen cihaza baglanir
-  CloseAirplayTerminal.sh       yardimci terminal kapatma scripti
-  login-beep.sh                 login/session sesli kontrol yardimcisi
-  com.eky.login-beep.plist      launchd plist ornegi
-  test-headless-airplay.command hizli manuel test komutu
+  StartAirPlay.swift            launcher source
+  run-airplay.sh                main wrapper called by the app
+  Airplay.sh                    discovery and selection entry point
+  ListAirplayDevices.sh         discovers Screen Mirroring devices
+  PickAirplayDevice.sh          reads a single-key Terminal selection
+  ConnectAirplay.sh             connects to the selected device
+  CloseAirplayTerminal.sh       Terminal cleanup helper
+  login-beep.sh                 login/session audio helper
+  com.eky.login-beep.plist      sample launchd property list
+  test-headless-airplay.command quick manual test command
 ```
 
-## Nasil calisir?
+## How It Works
 
-1. `Auto-Airplay.app` acilir.
-2. Bundle icindeki `StartAirPlay` binary'si `/Users/eky/Documents/MacOS Apps/Auto-Airplay/run-airplay.sh` dosyasini calistirir.
-3. `run-airplay.sh` kendi bulundugu klasoru script klasoru kabul eder.
-4. `Airplay.sh`, `ListAirplayDevices.sh --list-only` ile AirPlay cihazlarini tarar.
-5. Bulunan cihazlar `~/.airplay_devices` icine `id|ad` formatinda yazilir.
-6. Cihaz isimleri macOS `say` komutuyla okunur.
-7. Terminal aciksa secim ayni terminalden alinir; degilse gecici bir `.command` dosyasi ile Terminal acilir.
-8. `PickAirplayDevice.sh` secimi alir ve `ConnectAirplay.sh <numara>` calistirir.
-9. `ConnectAirplay.sh`, System Settings / Control Center Screen Mirroring UI'sini AppleScript ile kullanarak hedef cihaza baglanir.
+1. `Auto-Airplay.app` launches.
+2. Its `StartAirPlay` binary runs `/Users/eky/Documents/MacOS Apps/Auto-Airplay/run-airplay.sh`.
+3. `run-airplay.sh` treats its own directory as the scripts directory.
+4. `Airplay.sh` scans with `ListAirplayDevices.sh --list-only`.
+5. Devices are written to `~/.airplay_devices` in `id|name` format.
+6. macOS `say` announces each device name.
+7. An existing Terminal is reused when possible; otherwise a temporary `.command` file opens Terminal.
+8. `PickAirplayDevice.sh` reads the selection and invokes `ConnectAirplay.sh <number>`.
+9. `ConnectAirplay.sh` controls the System Settings or Control Center Screen Mirroring UI through AppleScript.
 
-## Gereksinimler
+## Requirements
 
 - macOS.
-- AirPlay / Screen Mirroring destekleyen bir hedef cihaz.
-- macOS Accessibility ve Automation izinleri.
-- `say`, `afplay`, `osascript`, `open`, `bash` gibi macOS sistem araclari.
+- An AirPlay / Screen Mirroring receiver.
+- Accessibility and Automation permissions.
+- Standard macOS tools including `say`, `afplay`, `osascript`, `open`, and `bash`.
 
-## Izinler
+## Permissions
 
-Bu otomasyon UI kontrol ettigi icin izinler onemli:
+Because this package controls system UI, permissions are important:
 
-- `System Settings > Privacy & Security > Accessibility`
-  - Terminal veya app'i calistiran uygulama icin izin ver.
-  - `Auto-Airplay.app` dogrudan calistirilacaksa ona da izin gerekebilir.
-- `System Settings > Privacy & Security > Automation`
-  - System Events / System Settings kontrolu icin izin isteyebilir.
+- Under `System Settings > Privacy & Security > Accessibility`, allow Terminal or the app that runs the scripts. `Auto-Airplay.app` may also need direct permission.
+- Under `System Settings > Privacy & Security > Automation`, allow access to System Events and System Settings when prompted.
 
-Izinler eksikse cihaz bulunabilir ama tiklama/baglanma adimi calismayabilir.
+Discovery may succeed while the click or connection step fails if these permissions are missing.
 
-## Calistirma
+## Run
 
-App olarak:
+As an app:
 
 ```bash
 open "/Users/eky/Documents/MacOS Apps/Auto-Airplay/Auto-Airplay.app"
 ```
 
-Script olarak:
+As a script:
 
 ```bash
 "/Users/eky/Documents/MacOS Apps/Auto-Airplay/run-airplay.sh"
 ```
 
-Preflight kontrolu:
+Preflight check:
 
 ```bash
 "/Users/eky/Documents/MacOS Apps/Auto-Airplay/run-airplay.sh" --preflight
 ```
 
-Sadece bip testi:
+Beep test only:
 
 ```bash
 "/Users/eky/Documents/MacOS Apps/Auto-Airplay/run-airplay.sh" --beep-only
 ```
 
-## Ortam degiskenleri
+## Environment Variables
 
-`run-airplay.sh` su override'lari destekler:
+`run-airplay.sh` supports these overrides:
 
 ```bash
 AIRPLAY_REPO_DIR="/path/to/scripts"
@@ -100,65 +99,61 @@ AIRPLAY_BEEP_SOUND="/System/Library/Sounds/Funk.aiff"
 AIRPLAY_BEEP_DURATION_SECONDS="0.07"
 ```
 
-Normal kullanimda bunlara gerek yoktur; scriptler ayni klasorde durdugu icin otomatik bulunur.
+They are not required for normal use because scripts are discovered relative to the wrapper.
 
-## Loglar
+## Logs
 
-Launcher loglari:
+Launcher logs are written to:
 
 ```text
 ~/Library/Logs/StartAirPlay/start-airplay.log
 ```
 
-Hata ayiklamak icin once bu dosyaya bak.
+## Login Beep LaunchAgent
 
-## Launchd login beep
-
-`com.eky.login-beep.plist`, login/session durumunda `login-beep.sh` calistirmak icin ornek launchd plist'idir.
-
-Plist icindeki script yolu:
+`com.eky.login-beep.plist` is a sample launchd property list for running `login-beep.sh` during login or session events. Its configured script path is:
 
 ```text
 /Users/eky/Documents/MacOS Apps/Auto-Airplay/login-beep.sh
 ```
 
-Bu ozellik AirPlay baglantisi icin zorunlu degildir; sadece yardimci geri bildirimdir.
+This helper is optional and is not required for AirPlay connections.
 
-## GitHub'a koyarken
+## Portability Notes
 
-Bu paket su an kisisel path ile derlenmis bir launcher icerir:
+The bundled launcher currently contains this personal absolute path:
 
 ```text
 /Users/eky/Documents/MacOS Apps/Auto-Airplay/run-airplay.sh
 ```
 
-Acik kaynak yapmak icin daha tasinabilir hale getirmek iyi olur:
+For a portable installation:
 
-- `StartAirPlay.swift` icindeki mutlak path yerine app bundle yanindaki scripti bulacak yapi kur.
-- `com.eky.login-beep.plist` icindeki kullanici path'ini ornek/template olarak ayir.
-- README'deki kisisel path'leri kurulum adimina tasimayi dusun.
+- Update `StartAirPlay.swift` to locate the script relative to the app bundle.
+- Treat the user path in `com.eky.login-beep.plist` as a template value.
+- Replace personal paths in installation examples.
 
-## Sorun giderme
+## Troubleshooting
 
 `Required file not found`:
 
-- Scriptlerin ayni klasorde oldugunu kontrol et.
-- `run-airplay.sh --preflight` calistir.
+- Confirm that all scripts are in the same directory.
+- Run `run-airplay.sh --preflight`.
 
-Cihazlar bulunmuyor:
+No devices are found:
 
-- AirPlay hedefinin ayni agda ve acik oldugunu kontrol et.
-- macOS Screen Mirroring menusunde cihaz gorunuyor mu bak.
+- Confirm that the AirPlay receiver is online and on the same network.
+- Check whether it appears in the macOS Screen Mirroring menu.
 
-Secim yapiliyor ama baglanmiyor:
+A device is selected but does not connect:
 
-- Accessibility / Automation izinlerini kontrol et.
-- macOS arayuz metinleri degistiyse `ListAirplayDevices.sh` ve `ConnectAirplay.sh` icindeki AppleScript secicileri guncellenebilir.
+- Check Accessibility and Automation permissions.
+- macOS UI changes may require selector updates in `ListAirplayDevices.sh` and `ConnectAirplay.sh`.
 
-Terminal aciliyor ama sesli okuma takiliyor:
+Terminal opens but speech gets stuck:
 
-- `pkill -x say` ile eski `say` surecleri temizlenebilir.
+- Run `pkill -x say` to stop stale `say` processes.
 
-## Lisans
+## License
 
-Henuez lisans dosyasi yoksa GitHub'a koymadan once bir lisans sec. Kisisel scriptler icin MIT yeterli olabilir.
+This project is covered by the repository's [MIT License](../LICENSE).

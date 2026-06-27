@@ -1,17 +1,18 @@
 # Battery Voice Alert
 
-[Ana repo: Headless MacBook Tools](../README.md)
+[English](README.md) | [Türkçe](README.tr.md)
 
-MacBook bataryasi duserken sesli uyari verir. App degil; macOS `LaunchAgent`
-olarak dakikada bir calisan kucuk bir script.
+[Main repository: Headless MacBook Tools](../README.md)
 
-## Kurulum
+Announces battery warnings while the MacBook is discharging. This is not an app; it is a small script run once per minute by a macOS `LaunchAgent`.
+
+## Install
 
 ```zsh
 /Users/eky/Documents/Codex/MacOS\ Apps/Battery\ Voice\ Alert/BatteryVoiceAlert.command install
 ```
 
-## Kaldirma
+## Uninstall
 
 ```zsh
 ~/.local/bin/battery-voice-alert uninstall
@@ -24,9 +25,9 @@ olarak dakikada bir calisan kucuk bir script.
 /Users/eky/Documents/Codex/MacOS\ Apps/Battery\ Voice\ Alert/BatteryVoiceAlert.command self-test
 ```
 
-## Esikler
+## Thresholds
 
-- `%25` ve ustunde susar.
-- `%25` altinda: `%24`, `%20`, `%15`, `%10`.
-- `%10` altinda: `%9`, `%8`, `%6`, `%4`, `%2`, `%1`.
-- Sarja takiliyken son uyari sifirlanir.
+- Silent at 25% and above.
+- Below 25%: announces 24%, 20%, 15%, and 10%.
+- Below 10%: announces 9%, 8%, 6%, 4%, 2%, and 1%.
+- Connecting the charger resets the most recent warning.

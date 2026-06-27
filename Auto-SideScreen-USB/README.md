@@ -1,139 +1,139 @@
 # Auto-SideScreen-USB
 
-[Ana repo: Headless MacBook Tools](../README.md)
+[English](README.md) | [Türkçe](README.tr.md)
 
-Auto-SideScreen-USB, SideScreen macOS uygulamasini USB modunda hizli baslatmak icin hazirlanmis kucuk bir launcher ve kisayol paketidir.
+[Main repository: Headless MacBook Tools](../README.md)
 
-Ana kullanim senaryosu: Android tablet/telefonu USB ile Mac'e ikinci ekran gibi baglamak ve SideScreen'de USB modunu tek kisayolla baslatmak.
+Auto-SideScreen-USB is a small launcher and shortcut package for starting the SideScreen macOS app quickly in USB mode.
 
-## Ne ise yarar?
+Its primary use case is connecting an Android tablet or phone over USB as a second display and starting SideScreen's USB mode with one shortcut.
 
-- `Auto-SideScreen-USB.app` acilinca kisa bir bip sesi verir.
-- Once `sidescreen://auto-start-usb` URL scheme'ini acmayi dener.
-- URL scheme basariliysa SideScreen kendi USB auto-start akisina girer.
-- URL scheme acilamazsa fallback olarak `/Applications/SideScreen.app` uygulamasini `--auto-start-usb` argumaniyla acmayi dener.
-- Ek scriptler ile SideScreen UI'sinde USB veya wireless sekmesini secip `Start` butonuna basma otomasyonu da bulunur.
+## Features
 
-## Klasor yapisi
+- Plays a short beep when `Auto-SideScreen-USB.app` opens.
+- First attempts to open the `sidescreen://auto-start-usb` URL scheme.
+- Lets SideScreen handle its own USB auto-start flow when the URL scheme succeeds.
+- Falls back to opening `/Applications/SideScreen.app` with `--auto-start-usb`.
+- Includes optional UI automation scripts for selecting USB or wireless mode and pressing `Start`.
+
+## Directory Layout
 
 ```text
 Auto-SideScreen-USB/
-  Auto-SideScreen-USB.app              macOS launcher app
-  StartSideScreenUSB.swift             launcher kaynak kodu
-  SideScreen.sh                        UI automation scripti
-  SideScreen-usb.sh                    SideScreen.sh usb wrapper'i
-  SideScreen-wireless.sh               SideScreen.sh wireless wrapper'i
-  sidescreen-aerospace-snippet.toml    AeroSpace kisayol ornegi
-  sidescreen-karabiner-simultaneous.json Karabiner kisayol ornegi
-  README.md                            bu dokuman
+  Auto-SideScreen-USB.app                macOS launcher app
+  StartSideScreenUSB.swift               launcher source
+  SideScreen.sh                          UI automation script
+  SideScreen-usb.sh                      USB wrapper
+  SideScreen-wireless.sh                 wireless wrapper
+  sidescreen-aerospace-snippet.toml      AeroSpace shortcut example
+  sidescreen-karabiner-simultaneous.json Karabiner shortcut example
+  README.md                              English documentation
+  README.tr.md                           Turkish documentation
 ```
 
-## Nasil calisir?
+## How It Works
 
-### App akisi
+### App Flow
 
-1. `Auto-SideScreen-USB.app` acilir.
-2. Bundle icindeki `StartSideScreenUSB` binary'si calisir.
-3. `~/Library/Logs/StartSideScreen/start-sidescreen-usb.log` icine log yazar.
-4. `/System/Library/Sounds/Funk.aiff` ile kisa bip calar.
-5. `sidescreen://auto-start-usb` URL scheme'i acilir.
-6. URL scheme basarisiz olursa `/Applications/SideScreen.app --auto-start-usb` fallback'i denenir.
-7. Fallback de basarisizsa hata loglanir ve hata sesi calar.
+1. `Auto-SideScreen-USB.app` launches.
+2. Its `StartSideScreenUSB` binary runs.
+3. It writes to `~/Library/Logs/StartSideScreen/start-sidescreen-usb.log`.
+4. It plays a short `/System/Library/Sounds/Funk.aiff` beep.
+5. It opens `sidescreen://auto-start-usb`.
+6. If the URL scheme fails, it tries `/Applications/SideScreen.app --auto-start-usb`.
+7. If the fallback also fails, it logs the error and plays an error sound.
 
-### Script akisi
+### Script Flow
 
-`SideScreen-usb.sh`:
+`SideScreen-usb.sh` delegates to the shared script:
 
 ```bash
 script_dir=$(cd "$(dirname "$0")" && pwd)
 exec "$script_dir/SideScreen.sh" usb
 ```
 
-`SideScreen.sh usb`:
+`SideScreen.sh usb` then:
 
-1. `/Applications/SideScreen.app` uygulamasini acar.
-2. AppleScript ile `Side Screen` process'ini bekler.
-3. UI icinde `USB`, `Wired` veya `Cable` adli sekmeyi arar.
-4. Sekmeyi secer.
-5. `Start` butonunu bulup basar.
+1. Opens `/Applications/SideScreen.app`.
+2. Waits for the `Side Screen` process through AppleScript.
+3. Finds a tab named `USB`, `Wired`, or `Cable`.
+4. Selects the tab.
+5. Finds and presses the `Start` button.
 
-Wireless icin ayni script `Wireless`, `Wi-Fi`, `WiFi` sekme adlarini arar.
+Wireless mode uses the same script and looks for `Wireless`, `Wi-Fi`, or `WiFi`.
 
-## Gereksinimler
+## Requirements
 
 - macOS.
-- SideScreen uygulamasi.
-- USB kullanim icin Android cihaz ve gerekli USB izinleri.
-- SideScreen'in macOS tarafinda gerekli Screen Recording izni.
-- UI automation scriptleri kullanilacaksa Accessibility / Automation izinleri.
+- The SideScreen app.
+- An Android device and the required USB permissions for wired use.
+- Screen Recording permission for SideScreen on macOS.
+- Accessibility and Automation permissions when using the UI scripts.
 
-Varsayilan SideScreen app yolu:
+The expected application path is:
 
 ```text
 /Applications/SideScreen.app
 ```
 
-SideScreen repo kopyasi su klasorde durabilir, ama launcher fallback'i `/Applications/SideScreen.app` bekler:
+A source checkout may live at the following location, but the launcher fallback still expects the app under `/Applications`:
 
 ```text
 /Users/eky/Documents/MacOS Apps/SideScreen
 ```
 
-## Izinler
+## Permissions
 
-SideScreen icin:
+For SideScreen:
 
-- `System Settings > Privacy & Security > Screen & System Audio Recording`
-  - SideScreen'e izin ver.
+- Allow SideScreen under `System Settings > Privacy & Security > Screen & System Audio Recording`.
 
-UI automation scriptleri icin:
+For the UI automation scripts:
 
-- `System Settings > Privacy & Security > Accessibility`
-  - Terminal, AeroSpace, Karabiner veya scripti calistiran uygulamaya izin ver.
-- `System Settings > Privacy & Security > Automation`
-  - System Events kontrolu icin izin gerekebilir.
+- Allow Terminal, AeroSpace, Karabiner, or the invoking app under `Accessibility`.
+- Allow System Events control under `Automation` when prompted.
 
-Not: `Auto-SideScreen-USB.app` URL scheme uzerinden baslatirken genelde UI tiklama otomasyonuna ihtiyac duymaz. `SideScreen.sh` scripti ise UI tiklama yaptigi icin Accessibility iznine baglidir.
+The URL-scheme launcher normally does not need click automation. `SideScreen.sh` does, so it depends on Accessibility permission.
 
-## Calistirma
+## Run
 
-App olarak:
+As an app:
 
 ```bash
 open "/Users/eky/Documents/MacOS Apps/Auto-SideScreen-USB/Auto-SideScreen-USB.app"
 ```
 
-USB script olarak:
+USB script:
 
 ```bash
 "/Users/eky/Documents/MacOS Apps/Auto-SideScreen-USB/SideScreen-usb.sh"
 ```
 
-Wireless script olarak:
+Wireless script:
 
 ```bash
 "/Users/eky/Documents/MacOS Apps/Auto-SideScreen-USB/SideScreen-wireless.sh"
 ```
 
-Direkt mod secerek:
+Select a mode directly:
 
 ```bash
 "/Users/eky/Documents/MacOS Apps/Auto-SideScreen-USB/SideScreen.sh" usb
 "/Users/eky/Documents/MacOS Apps/Auto-SideScreen-USB/SideScreen.sh" wireless
 ```
 
-## Kisayol ornekleri
+## Shortcut Examples
 
 ### macOS Shortcuts
 
-1. Shortcuts uygulamasinda yeni shortcut olustur.
-2. `Open App` aksiyonu ekle.
-3. App olarak `Auto-SideScreen-USB.app` sec.
-4. Klavye kisayolu ata.
+1. Create a shortcut in the Shortcuts app.
+2. Add an `Open App` action.
+3. Select `Auto-SideScreen-USB.app`.
+4. Assign a keyboard shortcut.
 
 ### AeroSpace
 
-`sidescreen-aerospace-snippet.toml` icindeki ornek:
+The included `sidescreen-aerospace-snippet.toml` contains:
 
 ```toml
 ctrl-alt-s = '''exec-and-forget /bin/bash -lc "/Users/eky/Documents/MacOS Apps/Auto-SideScreen-USB/SideScreen-usb.sh"'''
@@ -142,52 +142,52 @@ ctrl-alt-w = '''exec-and-forget /bin/bash -lc "/Users/eky/Documents/MacOS Apps/A
 
 ### Karabiner
 
-`sidescreen-karabiner-simultaneous.json`, USB ve wireless scriptleri icin shell command ornegi icerir.
+`sidescreen-karabiner-simultaneous.json` contains shell-command examples for the USB and wireless scripts.
 
-## Loglar
+## Logs
 
-Launcher loglari:
+Launcher logs are written to:
 
 ```text
 ~/Library/Logs/StartSideScreen/start-sidescreen-usb.log
 ```
 
-Burada launch denemeleri, URL scheme basarisi ve fallback hatalari gorulur.
+The file records launch attempts, URL-scheme success, and fallback failures.
 
-## GitHub'a koyarken
+## Portability Notes
 
-Bu paket su an kisisel kullanim icin pratik tutuldu. Acik kaynak yapmak icin su noktalar temizlenebilir:
+The package currently favors the local setup. For a portable installation:
 
-- `/Users/eky/Documents/MacOS Apps/...` path'lerini kurulum dokumanina veya template dosyalarina tasima.
-- `StartSideScreenUSB.swift` icindeki `/Applications/SideScreen.app` fallback yolunu ayarlanabilir yapma.
-- SideScreen'in URL scheme davranisini README'de upstream SideScreen surumuyle eslestirme.
-- Bundle build adimlarini ekleme.
+- Move `/Users/eky/Documents/MacOS Apps/...` paths into installation documentation or templates.
+- Make the `/Applications/SideScreen.app` fallback configurable in `StartSideScreenUSB.swift`.
+- Match URL-scheme behavior to the installed upstream SideScreen version.
+- Document reproducible bundle build steps.
 
-## Sorun giderme
+## Troubleshooting
 
-App aciliyor ama SideScreen baslamiyor:
+The app opens but SideScreen does not start:
 
-- `/Applications/SideScreen.app` var mi kontrol et.
-- SideScreen'i bir kez elle acip izinlerini tamamla.
-- `~/Library/Logs/StartSideScreen/start-sidescreen-usb.log` dosyasina bak.
+- Confirm that `/Applications/SideScreen.app` exists.
+- Open SideScreen manually once and complete its permission prompts.
+- Check `~/Library/Logs/StartSideScreen/start-sidescreen-usb.log`.
 
-USB modu baslamiyor:
+USB mode does not start:
 
-- Android cihaz USB ile bagli mi kontrol et.
-- Android tarafinda USB debugging / izin prompt'lari tamam mi kontrol et.
-- SideScreen icindeki USB modu elle basliyor mu test et.
+- Confirm that the Android device is connected over USB.
+- Complete USB debugging and permission prompts on Android.
+- Test USB mode manually in SideScreen.
 
-Script `Start` butonunu bulamiyor:
+The script cannot find the `Start` button:
 
-- SideScreen UI dili veya buton adi degismis olabilir.
-- Accessibility izni eksik olabilir.
-- `SideScreen.sh` icindeki `USB`, `Wired`, `Cable`, `Start` adlari guncellenebilir.
+- The SideScreen UI language or button name may have changed.
+- Accessibility permission may be missing.
+- Update the `USB`, `Wired`, `Cable`, and `Start` names in `SideScreen.sh` if needed.
 
-URL scheme calismiyor:
+The URL scheme does not work:
 
-- SideScreen'in kurulu surumu `sidescreen://auto-start-usb` scheme'ini desteklemiyor olabilir.
-- Bu durumda fallback `/Applications/SideScreen.app --auto-start-usb` denenir.
+- The installed SideScreen version may not support `sidescreen://auto-start-usb`.
+- The launcher will try `/Applications/SideScreen.app --auto-start-usb` as a fallback.
 
-## Lisans
+## License
 
-Henuez lisans dosyasi yoksa GitHub'a koymadan once bir lisans sec. Kisisel launcher/script paketleri icin MIT pratik bir secimdir.
+This project is covered by the repository's [MIT License](../LICENSE).

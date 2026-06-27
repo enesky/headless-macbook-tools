@@ -2,24 +2,24 @@
 
 [English](README.md) | [Türkçe](README.tr.md)
 
-[Main repository: Headless MacBook Tools](../README.md)
+[Ana repo: Headless MacBook Tools](../README.tr.md)
 
-This is a small macOS LaunchAgent that says `Lock Screen` when the screen is locked.
+Ekran kilitlendiginde `Lock Screen` diyen kucuk bir macOS LaunchAgent'idir.
 
-## Install
+## Kurulum
 
 ```zsh
 chmod +x install.sh uninstall.sh
 ./install.sh
 ```
 
-To use a different phrase:
+Farkli bir ifade kullanmak icin:
 
 ```zsh
 ./install.sh "Screen Locked"
 ```
 
-## Uninstall
+## Kaldirma
 
 ```zsh
 ./uninstall.sh

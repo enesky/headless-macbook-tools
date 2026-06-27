@@ -1,6 +1,8 @@
 <a id="readme-top"></a>
 
-[Ana repo: Headless MacBook Tools](../README.md)
+[English](README.md) | [Türkçe](README.tr.md)
+
+[Main repository: Headless MacBook Tools](../README.md)
 
 <div align="center">
 

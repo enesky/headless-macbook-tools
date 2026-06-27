@@ -1,36 +1,38 @@
 # Bag Sleep Guard
 
-[Ana repo: Headless MacBook Tools](../README.md)
+[English](README.md) | [Türkçe](README.tr.md)
 
-MacBook cantada yanlislikla uyanirsa, kilit ekraninda input gelmezse geri uyutur.
+[Main repository: Headless MacBook Tools](../README.md)
 
-Kur:
+Returns a MacBook to sleep when it wakes accidentally in a bag and receives no input at the lock screen.
+
+## Install
 
 ```zsh
 chmod +x install.sh uninstall.sh
 ./install.sh
 ```
 
-Gecici kapat:
+## Temporarily Disable
 
 ```zsh
 touch ~/.bag-sleep-guard-off
 ```
 
-Tekrar ac:
+Enable it again:
 
 ```zsh
 rm ~/.bag-sleep-guard-off
 ```
 
-Kaldir:
+## Uninstall
 
 ```zsh
 ./uninstall.sh
 ```
 
-Mantik: bataryadaysa, ekran kilitliyse ve 5 saniyedir klavye/trackpad input yoksa `pmset sleepnow`.
+## Behavior
 
-Giris yaptiktan sonra calismaz; sadece kilit ekraninda uyutur.
+When running on battery, the screen is locked, and no keyboard or trackpad input has arrived for five seconds, the guard runs `pmset sleepnow`.
 
-Bekleme suresini degistirmek icin `bag-sleep-guard.sh` icindeki `INPUT_WAIT_SECONDS` degerini degistir.
+It stops acting after login and only returns the Mac to sleep while the lock screen is active.

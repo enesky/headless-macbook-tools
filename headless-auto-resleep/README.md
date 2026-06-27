@@ -1,16 +1,18 @@
 # Headless Auto Re-Sleep
 
-[Ana repo: Headless MacBook Tools](../README.md)
+[English](README.md) | [Türkçe](README.tr.md)
 
-MacBook Air M2 headless kullanimda uyandiktan 3 saniye sonra kontrol eder:
+[Main repository: Headless MacBook Tools](../README.md)
 
-- Harici ekran varsa `waking up` der ve bir sey yapmaz.
-- Ekran kilidi gecildiyse sessiz kalir ve bir sey yapmaz.
-- Ekran kilidi duruyorken ilk 3 saniye icinde klavye/trackpad aksiyonu algilanmissa `waking up` der.
-- Harici ekran yoksa ve aksiyon yoksa `auto re-sleep` der, sonra `pmset sleepnow` calistirir.
-- Aksiyon surekli basili kalan tus gibi gorunurse konusmaz; kisa ses cikarir, sonra `pmset sleepnow` calistirir.
+Checks the state of a headless MacBook Air M2 three seconds after it wakes:
 
-## Kurulum
+- If an external display is connected, it says `waking up` and does nothing.
+- If the lock screen has already been dismissed, it remains silent and does nothing.
+- If keyboard or trackpad activity is detected during the first three seconds while the lock screen is active, it says `waking up`.
+- If there is no external display and no activity, it says `auto re-sleep`, then runs `pmset sleepnow`.
+- If the activity resembles a continuously held key, it plays a short sound instead of speaking, then runs `pmset sleepnow`.
+
+## Install
 
 ```zsh
 cd "/Users/eky/Documents/Codex/2026-06-25/tu/outputs/headless-auto-resleep"
@@ -18,14 +20,14 @@ chmod +x install.sh uninstall.sh
 ./install.sh
 ```
 
-## Kaldirma
+## Uninstall
 
 ```zsh
 cd "/Users/eky/Documents/Codex/2026-06-25/tu/outputs/headless-auto-resleep"
 ./uninstall.sh
 ```
 
-## Log
+## Logs
 
 ```zsh
 tail -f ~/Library/Logs/headless-auto-resleep.log
