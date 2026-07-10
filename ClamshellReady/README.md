@@ -10,7 +10,7 @@ Native SwiftUI menu bar app for Apple Silicon Macs. It helps keep a MacBook awak
 - When **Clamshell Ready** is disabled or **Quit** is clicked, the app releases its assertion and restores lid behavior with `SleepDisabled=0` if lid override is active.
 - **Allow on Battery** lets the assertion activate with an external display even without a power adapter.
 - **Ignore Lid Close (Disable sleep)** uses the Fermata-style `pmset -b disablesleep 1/0` workaround and requires administrator approval.
-- **Go to Sleep** releases the app's temporary assertion and then puts the Mac to sleep with a one-shot `pmset sleepnow` command. It does not change **Ignore Lid Close (Disable sleep)**.
+- **Go to Sleep** releases the app's temporary assertion and then asks IOKit to put the Mac to sleep. It does not change **Ignore Lid Close (Disable sleep)**.
 - Lid state is shown when macOS exposes it through IORegistry.
 - The app clears its assertion when it exits normally.
 

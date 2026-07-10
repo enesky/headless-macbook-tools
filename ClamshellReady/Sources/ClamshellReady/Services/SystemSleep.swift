@@ -1,32 +1,27 @@
 import Foundation
+import IOKit.pwr_mgt
 
 enum SystemSleepError: LocalizedError {
-    case commandFailed(String)
+    case serviceUnavailable
+    case sleepFailed(IOReturn)
 
     var errorDescription: String? {
         switch self {
-        case .commandFailed(let output):
-            "Could not put the system to sleep: \(output)"
+        case .serviceUnavailable:
+            "Could not put the system to sleep: power-management service is unavailable."
+        case .sleepFailed(let code):
+            "Could not put the system to sleep (IOKit: \(code))."
         }
     }
 }
 
 struct SystemSleep {
     static func sleepNow() throws {
-        let process = Process()
-        let pipe = Pipe()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/pmset")
-        process.arguments = ["sleepnow"]
-        process.standardOutput = pipe
-        process.standardError = pipe
-        try process.run()
-        process.waitUntilExit()
+        let port = IOPMFindPowerManagement(mach_port_t(MACH_PORT_NULL))
+        guard port != 0 else { throw SystemSleepError.serviceUnavailable }
+        defer { IOServiceClose(port) }
 
-        guard process.terminationStatus == 0 else {
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            let output = String(data: data, encoding: .utf8)?
-                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            throw SystemSleepError.commandFailed(output.isEmpty ? "exit code \(process.terminationStatus)" : output)
-        }
+        let result = IOPMSleepSystem(port)
+        guard result == kIOReturnSuccess else { throw SystemSleepError.sleepFailed(result) }
     }
 }
