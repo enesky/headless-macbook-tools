@@ -2,11 +2,14 @@ import Foundation
 
 enum LidSleepOverrideError: LocalizedError {
     case commandFailed(String)
+    case helperUnavailable
 
     var errorDescription: String? {
         switch self {
         case .commandFailed(let output):
             "Could not update lid behavior: \(output)"
+        case .helperUnavailable:
+            "Could not update lid behavior: privileged helper is not installed. Run script/install_lid_daemon.sh once."
         }
     }
 }
@@ -29,11 +32,12 @@ struct LidSleepOverride {
     }
 
     static func setEnabled(_ enabled: Bool) throws {
-        let value = enabled ? "1" : "0"
-        try run("/usr/bin/osascript", [
-            "-e",
-            #"do shell script "/usr/bin/pmset -b disablesleep \#(value)" with administrator privileges"#
-        ])
+        do {
+            try LidHelperClient.send(enabled ? "enable" : "disable")
+        } catch LidSleepOverrideError.helperUnavailable {
+            try LidHelperInstaller.install()
+            try LidHelperClient.send(enabled ? "enable" : "disable")
+        }
     }
 
     @discardableResult

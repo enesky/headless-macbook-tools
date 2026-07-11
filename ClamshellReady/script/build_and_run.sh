@@ -7,14 +7,18 @@ BUNDLE_ID="com.eky.ClamshellReady"
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_BUNDLE="$ROOT_DIR/dist/$APP_NAME.app"
 APP_MACOS="$APP_BUNDLE/Contents/MacOS"
+APP_HELPERS="$APP_BUNDLE/Contents/Library/PrivilegedHelpers"
 
 pkill -x "$APP_NAME" >/dev/null 2>&1 || true
 cd "$ROOT_DIR"
 swift build
 rm -rf "$APP_BUNDLE"
 mkdir -p "$APP_MACOS"
+mkdir -p "$APP_HELPERS"
 cp "$(swift build --show-bin-path)/$APP_NAME" "$APP_MACOS/$APP_NAME"
+cp "$(swift build --show-bin-path)/ClamshellReadyLidDaemon" "$APP_HELPERS/ClamshellReadyLidDaemon"
 chmod +x "$APP_MACOS/$APP_NAME"
+chmod +x "$APP_HELPERS/ClamshellReadyLidDaemon"
 
 cat > "$APP_BUNDLE/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>

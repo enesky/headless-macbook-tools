@@ -17,8 +17,11 @@ struct MenuContentView: View {
             Divider()
             if let error = monitor.errorMessage { Text(error).foregroundStyle(.red).fixedSize(horizontal: false, vertical: true) }
             switchRow("Allow on Battery", Binding(get: { monitor.allowOnBattery }, set: { monitor.setAllowOnBattery($0) }))
-            switchRow("Ignore Lid Close (Disable sleep)", Binding(get: { monitor.lidOverrideActive }, set: { monitor.setLidOverrideEnabled($0) }))
+            switchRow("Ignore Lid Close (Disable sleep)", Binding(get: { monitor.lidOverrideDesired }, set: { monitor.setLidOverrideEnabled($0) }))
             switchRow("Launch at Login", Binding(get: { monitor.launchAtLogin }, set: { monitor.setLaunchAtLogin($0) }))
+            if monitor.hasBuiltInDisplay {
+                switchRow("Dim Built-in Display", Binding(get: { monitor.dimBuiltInAtLogin }, set: { monitor.setDimBuiltInAtLogin($0) }))
+            }
             Divider()
             status("External Display", monitor.hasExternalDisplay ? "Connected" : "Not connected")
             status("Power Adapter", monitor.isOnACPower ? "Connected" : "Not connected")

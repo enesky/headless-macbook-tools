@@ -7,19 +7,23 @@ import ServiceManagement
 
 @MainActor @Observable final class SystemMonitor {
     private(set) var hasExternalDisplay = false
+    private(set) var hasBuiltInDisplay = false
     private(set) var isOnACPower = false
     private(set) var lidState: LidState = .unavailable
     private(set) var assertionActive = false
     private(set) var lidOverrideActive = false
     private(set) var errorMessage: String?
     private(set) var launchAtLogin = SMAppService.mainApp.status == .enabled
+    private(set) var dimBuiltInAtLogin = UserDefaults.standard.bool(forKey: "dimBuiltInAtLogin")
     private(set) var allowOnBattery = UserDefaults.standard.bool(forKey: "allowOnBattery")
     private(set) var activeModeEnabled = UserDefaults.standard.object(forKey: "activeModeEnabled") as? Bool ?? true
+    private(set) var lidOverrideDesired = UserDefaults.standard.bool(forKey: "lidOverrideDesired")
     private let assertion = PowerAssertion()
     private var timer: Timer?
     private var observers: [NSObjectProtocol] = []
     private var ownsLidOverride = false
     private var lastActionError: String?
+    private var restoreLidOverrideAfterWake = UserDefaults.standard.bool(forKey: "restoreLidOverrideAfterWake")
 
     var mode: ActiveMode { .resolve(hasExternalDisplay: hasExternalDisplay, isOnACPower: isOnACPower, allowOnBattery: allowOnBattery, activeModeEnabled: activeModeEnabled) }
     var menuBarIcon: String { mode == .clamshellReady ? "display.and.arrow.down" : "display" }
@@ -27,14 +31,15 @@ import ServiceManagement
     init() {
         ActiveMode.selfCheck()
         refresh()
+        if dimBuiltInAtLogin { dimBuiltInDisplay() }
         let center = NSWorkspace.shared.notificationCenter
-        for name in [NSWorkspace.screensDidSleepNotification, NSWorkspace.screensDidWakeNotification] {
-            observers.append(center.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in self?.refresh() } })
-        }
+        observers.append(center.addObserver(forName: NSWorkspace.screensDidSleepNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in self?.refresh() } })
+        observers.append(center.addObserver(forName: NSWorkspace.screensDidWakeNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in self?.handleWake() } })
         timer = .scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in Task { @MainActor in self?.refresh() } }
     }
 
     func refresh() {
+        hasBuiltInDisplay = Self.detectBuiltInDisplay()
         hasExternalDisplay = Self.detectExternalDisplay()
         isOnACPower = Self.detectACPower()
         lidState = Self.detectLidState()
@@ -57,6 +62,11 @@ import ServiceManagement
             errorMessage = "Could not update Launch at Login: \(error.localizedDescription)"
         }
     }
+    func setDimBuiltInAtLogin(_ enabled: Bool) {
+        dimBuiltInAtLogin = enabled
+        UserDefaults.standard.set(enabled, forKey: "dimBuiltInAtLogin")
+        if enabled { dimBuiltInDisplay() }
+    }
     func setAllowOnBattery(_ enabled: Bool) {
         allowOnBattery = enabled
         UserDefaults.standard.set(enabled, forKey: "allowOnBattery")
@@ -69,6 +79,8 @@ import ServiceManagement
         refresh()
     }
     func setLidOverrideEnabled(_ enabled: Bool) {
+        lidOverrideDesired = enabled
+        UserDefaults.standard.set(enabled, forKey: "lidOverrideDesired")
         do {
             try LidSleepOverride.setEnabled(enabled)
             ownsLidOverride = enabled
@@ -85,10 +97,18 @@ import ServiceManagement
     }
     func goToSleep() {
         releaseAppAssertionOnly()
+        let shouldRestoreLidOverride = lidOverrideDesired || lidOverrideActive
         do {
+            if shouldRestoreLidOverride {
+                restoreLidOverrideAfterWake = true
+                UserDefaults.standard.set(true, forKey: "restoreLidOverrideAfterWake")
+                try LidSleepOverride.setEnabled(false)
+                lidOverrideActive = false
+            }
             try SystemSleep.sleepNow()
             lastActionError = nil
         } catch {
+            if shouldRestoreLidOverride { try? restoreDesiredLidOverride() }
             lastActionError = error.localizedDescription
             refresh()
         }
@@ -99,8 +119,22 @@ import ServiceManagement
         assertionActive = false
     }
 
+    private func dimBuiltInDisplay() {
+        if let error = BuiltInDisplayBrightness.setToZero() {
+            lastActionError = error
+            refresh()
+        } else {
+            lastActionError = nil
+            errorMessage = nil
+        }
+    }
+
     private func restoreNormalPowerBehavior() {
         releaseAppAssertionOnly()
+        lidOverrideDesired = false
+        restoreLidOverrideAfterWake = false
+        UserDefaults.standard.set(false, forKey: "lidOverrideDesired")
+        UserDefaults.standard.set(false, forKey: "restoreLidOverrideAfterWake")
         if lidOverrideActive || ownsLidOverride {
             do {
                 try LidSleepOverride.setEnabled(false)
@@ -113,6 +147,28 @@ import ServiceManagement
         }
     }
 
+    private func handleWake() {
+        refresh()
+        if dimBuiltInAtLogin { dimBuiltInDisplay() }
+        if restoreLidOverrideAfterWake && lidOverrideDesired {
+            do {
+                try restoreDesiredLidOverride()
+                lastActionError = nil
+            } catch {
+                lastActionError = error.localizedDescription
+            }
+            refresh()
+        }
+    }
+
+    private func restoreDesiredLidOverride() throws {
+        try LidSleepOverride.setEnabled(true)
+        lidOverrideActive = true
+        ownsLidOverride = true
+        restoreLidOverrideAfterWake = false
+        UserDefaults.standard.set(false, forKey: "restoreLidOverrideAfterWake")
+    }
+
     private static func detectExternalDisplay() -> Bool {
         var count: UInt32 = 0
         guard CGGetOnlineDisplayList(0, nil, &count) == .success else { return false }
@@ -121,6 +177,13 @@ import ServiceManagement
         return displays.prefix(Int(count)).contains {
             CGDisplayIsBuiltin($0) == 0 && CGDisplayVendorNumber($0) != 0 && CGDisplayModelNumber($0) != 0
         }
+    }
+    private static func detectBuiltInDisplay() -> Bool {
+        var count: UInt32 = 0
+        guard CGGetOnlineDisplayList(0, nil, &count) == .success else { return false }
+        var displays = [CGDirectDisplayID](repeating: 0, count: Int(count))
+        guard CGGetOnlineDisplayList(count, &displays, &count) == .success else { return false }
+        return displays.prefix(Int(count)).contains { CGDisplayIsBuiltin($0) != 0 }
     }
     private static func detectACPower() -> Bool {
         IOPSCopyExternalPowerAdapterDetails()?.takeRetainedValue() != nil
