@@ -1,50 +1,56 @@
 # Headless MacBook Tools
 
-[English](README.md) | [Türkçe](README.tr.md)
+A menu-bar-only macOS utility that collects the headless MacBook workflows in one native SwiftUI app.
 
-A collection of macOS apps, LaunchAgents, and automation scripts for headless and shortcut-driven MacBook workflows.
+## Features
 
-This repository consolidates the tools developed in the `MacOS Apps` directory. It keeps installable scripts, small Swift launcher apps, launchd property lists, and SideScreen automation utilities in one place.
+- Clamshell readiness based on physical external-display and power-adapter state
+- Optional battery operation and experimental lid-close override
+- AirPlay display selection
+- SideScreen USB and wireless launch actions
+- Automatic re-sleep and bag-wake protection
+- Low-battery and lock-screen voice alerts
+- App Intents for AirPlay and SideScreen actions
+- URL actions: `headlesstools://airplay`, `headlesstools://sidescreen-usb`, and `headlesstools://sidescreen-wireless`
 
-## Tools
+The app is an `LSUIElement` and does not appear in the Dock. Its menu icon is a template image that adapts to light and dark menu bars.
 
-| Tool | Type | Purpose |
-| --- | --- | --- |
-| [Auto-Airplay](Auto-Airplay/README.md) | Swift launcher + shell scripts | Finds AirPlay / Screen Mirroring receivers, reads them aloud, and lets you connect using a keyboard selection. |
-| [Auto-SideScreen-USB](Auto-SideScreen-USB/README.md) | Swift launcher + UI automation | Starts SideScreen in USB mode with a single shortcut. |
-| [Battery Voice Alert](Battery%20Voice%20Alert/README.md) | LaunchAgent script | Announces battery warnings when the MacBook drops below configured thresholds. |
-| [Bag Sleep Guard](bag-sleep-guard/README.md) | LaunchAgent script | Puts a closed or bagged MacBook back to sleep when it wakes without user input. |
-| [Clamshell Ready](ClamshellReady/README.md) | SwiftUI menu bar app | Manages external-display clamshell workflows, optional battery assertions, and lid-close override state from a compact menu bar UI. |
-| [Headless Auto Re-Sleep](headless-auto-resleep/README.md) | Swift helper + installer | Checks display and input state after a headless wake, then returns the Mac to sleep when appropriate. |
-| [Lock Screen Sayer](lock-screen-sayer/README.md) | Swift helper + LaunchAgent | Announces when the screen is locked. |
-| [SideScreen](SideScreen/README.md) | Open-source macOS + Android app | Uses an Android device as a second display; this version adds automation and auto-connect workflows for headless use. |
+## Project layout
 
-### ClamshellReady menu
+- `Sources/`: SwiftUI app, system monitoring, power management, App Intents, and the privileged lid helper
+- `Tools/`: the only source copies of the scripts and helper tools launched or managed by the app
+- `Assets/`: menu-bar artwork
+- `script/build_and_run.sh`: build, bundle, sign, launch, and verify entry point
 
-![ClamshellReady menu UI](ClamshellReady/ss-menu-ui.png)
+Enabled background tools install their runtime copies under:
 
-## Customized SideScreen
+```text
+~/Library/Application Support/Headless MacBook Tools/Agents
+```
 
-[SideScreen](https://github.com/tranvuongquocdat/SideScreen) is an open-source macOS and Android application. The version included in this repository extends the upstream project with headless-focused automation and auto-connect workflows, including URL-scheme and launch-argument based USB auto-start plus companion launcher and UI automation scripts.
+Their source remains in this repository's `Tools/` directory.
 
-## Repository Scope
+## Build and run
 
-The repository includes source code, scripts, property-list examples, documentation, and required project files.
+Requirements: macOS 14+, Apple Silicon, and the Swift toolchain included with the installed Command Line Tools.
 
-Local build output, caches, and metadata are excluded:
+```zsh
+./script/build_and_run.sh
+./script/build_and_run.sh --verify
+```
 
-- `.git/`
-- `.build/`
-- `.clang-module-cache/`
-- `.DS_Store`
+The staged application is written to `dist/HeadlessMacBookTools.app` and ad-hoc signed.
 
-## Notes
+## Shortcuts and keyboard shortcuts
 
-- These tools target macOS.
-- UI automation may require permissions under `Privacy & Security > Accessibility` and `Automation`.
-- Sleep, screen-lock, AirPlay, and SideScreen behavior can vary by device and macOS version.
-- Installation and removal instructions are documented in each tool's README.
+The app exposes `Run Headless Tool` through App Intents. Use the Shortcuts app to select the action and assign a keyboard shortcut from the shortcut's Details panel.
 
-## GitHub
+App Intents can provide actions and preconfigured App Shortcuts, but macOS keeps the actual keyboard combination as a user-owned Shortcuts preference. The app does not modify that preference programmatically.
 
-[enesky/headless-macbook-tools](https://github.com/enesky/headless-macbook-tools)
+## Permissions
+
+- AirPlay UI automation may require Accessibility and Automation access.
+- SideScreen requires Screen & System Audio Recording access; its UI fallback may also require Accessibility.
+- The experimental lid-close override installs a narrowly scoped privileged helper after administrator approval.
+
+The normal Clamshell Ready path uses a temporary IOKit power assertion. The lid-close override is not a supported public Apple API and changes a system-wide battery sleep setting.
