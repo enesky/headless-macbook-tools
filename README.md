@@ -2,6 +2,12 @@
 
 A menu-bar-only macOS utility that collects the headless MacBook workflows in one native SwiftUI app.
 
+## Preview
+
+<p align="center">
+  <img src="Assets/screenshot.png" alt="Headless MacBook Tools menu" width="354">
+</p>
+
 ## Features
 
 - Clamshell readiness based on physical external-display and power-adapter state
