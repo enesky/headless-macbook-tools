@@ -1,8 +1,10 @@
 .DS_Store
 .build/
+dist/
 .clang-module-cache/
+**/.clang-module-cache
+Tools/**/bin
 DerivedData/
 *.xcuserstate
 *.swp
 *.tmp
-
