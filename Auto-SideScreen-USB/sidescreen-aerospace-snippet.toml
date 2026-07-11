@@ -1,9 +1,0 @@
-# Add these under [mode.main.binding] in ~/.aerospace.toml.
-#
-# Note: AeroSpace has normal shortcuts, not a delayed "ctrl+option+s then w"
-# chord that can also make ctrl+option+s immediately do USB. If ctrl+option+s
-# starts USB immediately, the later "w" cannot change that same shortcut into
-# Wireless. Use two distinct shortcuts:
-
-ctrl-alt-s = '''exec-and-forget /bin/bash -lc "/Users/eky/Documents/MacOS Apps/Auto-SideScreen-USB/SideScreen-usb.sh"'''
-ctrl-alt-w = '''exec-and-forget /bin/bash -lc "/Users/eky/Documents/MacOS Apps/Auto-SideScreen-USB/SideScreen-wireless.sh"'''
