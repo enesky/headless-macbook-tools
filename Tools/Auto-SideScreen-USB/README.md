@@ -1,6 +1,6 @@
 # SideScreen Launch Tools
 
-USB and wireless SideScreen launch actions used by Headless MacBook Tools.
+USB and wireless SideScreen launch actions used by Headless MacOS Tools.
 
 The preferred path opens SideScreen through its URL scheme. The fallback opens `/Applications/SideScreen.app` and uses UI automation to select USB or wireless mode and press Start.
 
@@ -17,4 +17,4 @@ The preferred path opens SideScreen through its URL scheme. The fallback opens `
 ./SideScreen-wireless.sh
 ```
 
-Headless MacBook Tools invokes these scripts directly from its application bundle. App Intents are the preferred shortcut integration.
+Headless MacOS Tools invokes these scripts directly from its application bundle. App Intents are the preferred shortcut integration.

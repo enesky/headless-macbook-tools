@@ -1,6 +1,6 @@
 # Battery Voice Alert
 
-A LaunchAgent managed by Headless MacBook Tools. It checks battery state once per minute and speaks selected low-charge warnings while the Mac is discharging.
+A LaunchAgent managed by Headless MacOS Tools. It checks battery state once per minute and speaks selected low-charge warnings while the Mac is discharging.
 
 Warning levels are 24, 20, 15, 10, 9, 8, 6, 4, 2, and 1 percent. Connecting power resets the last warning.
 
@@ -17,4 +17,4 @@ Manual diagnostics:
 ./BatteryVoiceAlert.command check
 ```
 
-Normal installation and removal should be performed with the Low Battery Voice Alert switch in Headless MacBook Tools.
+Normal installation and removal should be performed with the Low Battery Voice Alert switch in Headless MacOS Tools.

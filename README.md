@@ -1,11 +1,11 @@
-# Headless MacBook Tools
+# Headless MacOS Tools
 
 A menu-bar-only macOS utility that collects the headless MacBook workflows in one native SwiftUI app.
 
 ## Preview
 
 <p align="center">
-  <img src="Assets/screenshot.png" alt="Headless MacBook Tools menu" width="354">
+  <img src="Assets/screenshot.png" alt="Headless MacOS Tools menu" width="354">
 </p>
 
 ## Features
@@ -15,7 +15,7 @@ A menu-bar-only macOS utility that collects the headless MacBook workflows in on
 - AirPlay display selection
 - SideScreen USB and wireless launch actions
 - Automatic re-sleep and bag-wake protection
-- Low-battery and lock-screen voice alerts
+- Low-battery and lock-screen voice alerts, plus a login, wake, and unlock sound
 - App Intents for AirPlay and SideScreen actions
 - URL actions: `headlesstools://airplay`, `headlesstools://sidescreen-usb`, and `headlesstools://sidescreen-wireless`
 
@@ -34,7 +34,7 @@ Enabled background tools install their runtime copies under:
 ~/Library/Application Support/Headless MacBook Tools/Agents
 ```
 
-Their source remains in this repository's `Tools/` directory.
+The legacy support-directory name is kept to preserve existing background-tool installations. Their source remains in this repository's `Tools/` directory.
 
 ## Build and run
 
@@ -45,13 +45,22 @@ Requirements: macOS 14+, Apple Silicon, and the Swift toolchain included with th
 ./script/build_and_run.sh --verify
 ```
 
-The staged application is written to `dist/HeadlessMacBookTools.app` and ad-hoc signed.
+The staged application is written to `dist/Headless MacOS Tools.app` and ad-hoc signed.
 
 ## Shortcuts and keyboard shortcuts
 
 The app exposes `Run Headless Tool` through App Intents. Use the Shortcuts app to select the action and assign a keyboard shortcut from the shortcut's Details panel.
 
 App Intents can provide actions and preconfigured App Shortcuts, but macOS keeps the actual keyboard combination as a user-owned Shortcuts preference. The app does not modify that preference programmatically.
+
+Headless MacOS Tools also provides native global keyboard shortcuts that do not depend on the Shortcuts app:
+
+- `Control + Option + A`: Start Auto AirPlay
+- `Control + Option + S`: SideScreen USB
+- `Control + Option + W`: SideScreen Wireless
+- `Control + Option + Command + S`: Sleep Now
+
+The `SHORTCUTS` section runs each action directly. Click `Edit` to record different combinations; changes are stored in the app's preferences. If an existing macOS service or Shortcuts workflow already owns a combination, the app shows a conflict and leaves that global shortcut inactive until a free combination is selected.
 
 ## Permissions
 

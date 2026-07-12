@@ -1,6 +1,6 @@
 # Lock Screen Voice Alert
 
-A LaunchAgent managed by Headless MacBook Tools. It says `Lock Screen` when the macOS session becomes locked.
+A LaunchAgent managed by Headless MacOS Tools. It says `Lock Screen` when the macOS session becomes locked.
 
 Runtime files are installed under:
 
@@ -8,4 +8,4 @@ Runtime files are installed under:
 ~/Library/Application Support/Headless MacBook Tools/Agents/lock-screen-sayer
 ```
 
-Normal installation and removal should be performed with the Lock Screen Voice Alert switch in Headless MacBook Tools.
+Normal installation and removal should be performed with the Lock Screen Voice Alert switch in Headless MacOS Tools.
