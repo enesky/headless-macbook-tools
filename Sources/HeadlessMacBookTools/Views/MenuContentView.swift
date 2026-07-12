@@ -4,21 +4,17 @@ import SwiftUI
 struct MenuContentView: View {
     @ObservedObject var monitor: SystemMonitor
     @ObservedObject var tools: ToolController
+    @ObservedObject var shortcuts: GlobalShortcutStore
     @State private var showingClamshellInfo = false
     @State private var showingSleepToolsInfo = false
     @State private var showingNotificationsInfo = false
+    @State private var showingShortcutEditor = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             header
             Divider()
             systemStatus
-            Divider()
-            section("DISPLAY") {
-                action(.airPlay, icon: "airplayvideo")
-                action(.sideScreenUSB, icon: "cable.connector")
-                action(.sideScreenWireless, icon: "wifi")
-            }
             Divider()
             clamshellSection
             Divider()
@@ -29,14 +25,19 @@ struct MenuContentView: View {
             }
             Divider()
             infoSection("NOTIFICATIONS", isPresented: $showingNotificationsInfo, help: "About Notifications") {
+                switchRow("Login, Wake & Unlock Sound", monitor.loginWakeSoundEnabled, monitor.setLoginWakeSoundEnabled)
                 ForEach(tools.services.filter { !$0.id.contains("sleep") }, id: \.id) { serviceToggle($0) }
             } info: {
                 notificationsInfo
             }
             Divider()
+            shortcutsSection
+            Divider()
             if let error = monitor.errorMessage {
                 Label(error, systemImage: "exclamationmark.triangle")
-                    .font(.caption).foregroundStyle(.red)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .fixedSize(horizontal: false, vertical: true)
             } else if let message = tools.lastMessage {
                 Text(message).font(.caption).foregroundStyle(.secondary)
             }
@@ -58,7 +59,7 @@ struct MenuContentView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 28, height: 28)
-            Text("Headless MacBook Tools").font(.headline)
+            Text("Headless MacOS Tools").font(.headline)
             Spacer()
         }
     }
@@ -74,6 +75,97 @@ struct MenuContentView: View {
                 status("Lid", monitor.lidState.text)
             }
         }
+    }
+
+    private var shortcutsSection: some View {
+        VStack(alignment: .leading, spacing: 9) {
+            HStack {
+                Text("SHORTCUTS")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button("Edit") { showingShortcutEditor.toggle() }
+                    .buttonStyle(.plain)
+                    .font(.caption)
+                    .popover(isPresented: $showingShortcutEditor, arrowEdge: .trailing) {
+                        shortcutEditor
+                    }
+            }
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
+                ForEach(ShortcutCommand.allCases) { shortcutButton($0) }
+            }
+            if !shortcuts.registrationErrors.isEmpty {
+                Label("Some shortcuts are already in use. Click Edit to choose new combinations.", systemImage: "exclamationmark.triangle")
+                    .font(.caption2)
+                    .foregroundStyle(.red)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private func shortcutButton(_ command: ShortcutCommand) -> some View {
+        let display = shortcuts.bindings[command]?.readableDisplay ?? "—"
+        let displayColor: Color = shortcuts.registrationErrors[command] == nil ? .secondary : .red
+        return Button { shortcuts.run(command) } label: {
+            HStack(spacing: 8) {
+                Image(systemName: command.icon).frame(width: 18)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(command.title).lineLimit(2)
+                    Text(display)
+                        .font(.caption2)
+                        .foregroundStyle(displayColor)
+                        .lineLimit(2)
+                }
+                Spacer(minLength: 0)
+            }
+            .contentShape(Rectangle())
+            .padding(.horizontal, 9)
+            .padding(.vertical, 7)
+            .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading)
+            .background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(.separator.opacity(0.55), lineWidth: 0.5)
+            }
+        }
+        .buttonStyle(.plain)
+        .help(shortcuts.registrationErrors[command] ?? "Run \(command.title)")
+    }
+
+    private var shortcutEditor: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Keyboard Shortcuts").font(.headline)
+            Text("Click a shortcut, then press the new key combination. Press Esc to cancel.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            ForEach(ShortcutCommand.allCases) { command in
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack {
+                        Label(command.title, systemImage: command.icon)
+                        Spacer()
+                        Button(shortcuts.recording == command ? "Press keys…" : shortcuts.bindings[command]?.readableDisplay ?? "Set") {
+                            shortcuts.beginRecording(command)
+                        }
+                        .frame(minWidth: 190)
+                    }
+                    if let error = shortcuts.registrationErrors[command] {
+                        Text(error)
+                            .font(.caption2)
+                            .foregroundStyle(.red)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+            HStack {
+                Button("Reset Defaults") { shortcuts.resetDefaults() }
+                Spacer()
+                Button("Done") { showingShortcutEditor = false }
+                    .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(14)
+        .frame(width: 480)
     }
 
     private var clamshellSection: some View {
@@ -96,13 +188,12 @@ struct MenuContentView: View {
                 }
                 Spacer()
             }
+            switchRow("Launch at Login", monitor.launchAtLogin, monitor.setLaunchAtLogin)
             switchRow("Allow on Battery", monitor.allowOnBattery, monitor.setAllowOnBattery)
             switchRow("Ignore Lid Close (Disable Sleep)", monitor.lidOverrideDesired, monitor.setLidOverrideEnabled)
-            switchRow("Launch at Login", monitor.launchAtLogin, monitor.setLaunchAtLogin)
             if monitor.hasBuiltInDisplay {
                 switchRow("Dim Built-in Display", monitor.dimBuiltInAtLogin, monitor.setDimBuiltInAtLogin)
             }
-            actionRow("Sleep Now", icon: "moon.zzz") { monitor.goToSleep() }
         }
     }
 
@@ -111,11 +202,10 @@ struct MenuContentView: View {
             Text("Clamshell Ready").font(.headline)
             Text("Keeps the Mac awake for an external-display workflow. By default, a physical external display and power adapter must both be connected.")
                 .foregroundStyle(.secondary)
+            infoRow("Launch at Login", "Starts Headless MacOS Tools automatically after you sign in.")
             infoRow("Allow on Battery", "Also keeps the Mac awake without a power adapter when a physical external display is connected.")
             infoRow("Ignore Lid Close", "Uses an unsupported system-wide sleep override. It may require administrator approval and should be used carefully.")
-            infoRow("Launch at Login", "Starts Headless MacBook Tools automatically after you sign in.")
             infoRow("Dim Built-in Display", "Sets only the MacBook's built-in display brightness to zero.")
-            infoRow("Sleep Now", "Temporarily releases the wake assertion and puts the Mac to sleep.")
         }
         .padding(14)
         .frame(width: 330)
@@ -138,6 +228,7 @@ struct MenuContentView: View {
             Text("Notifications").font(.headline)
             Text("Optional spoken alerts for useful MacBook state changes.")
                 .foregroundStyle(.secondary)
+            infoRow("Login, Wake & Unlock Sound", "Plays a short sound after login, wake, or unlocking the Mac.")
             infoRow("Low Battery Voice Alert", "Speaks battery warnings at selected low-charge levels while the Mac is discharging.")
             infoRow("Lock Screen Voice Alert", "Says “Lock Screen” when the macOS session becomes locked.")
         }
@@ -185,32 +276,6 @@ struct MenuContentView: View {
             }
             content()
         }
-    }
-
-    private func action(_ action: ToolAction, icon: String) -> some View {
-        actionRow(action.title, icon: icon) { tools.run(action) }
-    }
-
-    private func actionRow(_ title: String, icon: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 9) {
-                Image(systemName: icon).frame(width: 18)
-                Text(title)
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.tertiary)
-            }
-            .contentShape(Rectangle())
-            .padding(.horizontal, 10)
-            .padding(.vertical, 8)
-            .background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
-            .overlay {
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(.separator.opacity(0.55), lineWidth: 0.5)
-            }
-        }
-        .buttonStyle(.plain)
     }
 
     private func serviceToggle(_ service: ManagedService) -> some View {

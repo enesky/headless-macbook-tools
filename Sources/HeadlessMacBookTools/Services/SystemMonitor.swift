@@ -16,14 +16,18 @@ import ServiceManagement
     @Published private(set) var errorMessage: String?
     @Published private(set) var launchAtLogin = SMAppService.mainApp.status == .enabled
     @Published private(set) var dimBuiltInAtLogin = UserDefaults.standard.bool(forKey: "dimBuiltInAtLogin")
+    @Published private(set) var loginWakeSoundEnabled = SystemMonitor.initialLoginWakeSoundSetting()
     @Published private(set) var allowOnBattery = UserDefaults.standard.bool(forKey: "allowOnBattery")
     @Published private(set) var lidOverrideDesired = UserDefaults.standard.bool(forKey: "lidOverrideDesired")
     private let assertion = PowerAssertion()
     private var timer: Timer?
+    private var dimTask: Task<Void, Never>?
     private var observers: [NSObjectProtocol] = []
     private var ownsLidOverride = false
+    private var isPreparingForSleep = false
     private var lastActionError: String?
     private var restoreLidOverrideAfterWake = UserDefaults.standard.bool(forKey: "restoreLidOverrideAfterWake")
+    private var lastLoginWakeSound = Date.distantPast
 
     var mode: ActiveMode { .resolve(hasExternalDisplay: hasExternalDisplay, isOnACPower: isOnACPower, allowOnBattery: allowOnBattery, activeModeEnabled: true) }
     var menuBarIcon: String { mode == .clamshellReady ? "display.and.arrow.down" : "display" }
@@ -31,10 +35,13 @@ import ServiceManagement
     init() {
         ActiveMode.selfCheck()
         refresh()
-        if dimBuiltInAtLogin { dimBuiltInDisplay() }
+        UserDefaults.standard.set(loginWakeSoundEnabled, forKey: "loginWakeSoundEnabled")
+        if loginWakeSoundEnabled { playLoginWakeSound() }
+        if dimBuiltInAtLogin { scheduleBuiltInDisplayDim() }
         let center = NSWorkspace.shared.notificationCenter
         observers.append(center.addObserver(forName: NSWorkspace.screensDidSleepNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in self?.refresh() } })
         observers.append(center.addObserver(forName: NSWorkspace.screensDidWakeNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in self?.handleWake() } })
+        observers.append(center.addObserver(forName: NSWorkspace.sessionDidBecomeActiveNotification, object: nil, queue: .main) { [weak self] _ in Task { @MainActor in self?.playLoginWakeSound() } })
         timer = .scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in Task { @MainActor in self?.refresh() } }
     }
 
@@ -45,7 +52,7 @@ import ServiceManagement
         isOnACPower = Self.detectACPower()
         lidState = Self.detectLidState()
         do {
-            try assertion.update(shouldBeActive: hasExternalDisplay && (isOnACPower || allowOnBattery))
+            try assertion.update(shouldBeActive: !isPreparingForSleep && hasExternalDisplay && (isOnACPower || allowOnBattery))
             assertionActive = assertion.isActive
             lidOverrideActive = (try? LidSleepOverride.isEnabled()) ?? lidOverrideActive
             errorMessage = lastActionError
@@ -67,6 +74,11 @@ import ServiceManagement
         dimBuiltInAtLogin = enabled
         UserDefaults.standard.set(enabled, forKey: "dimBuiltInAtLogin")
         if enabled { dimBuiltInDisplay() }
+    }
+    func setLoginWakeSoundEnabled(_ enabled: Bool) {
+        loginWakeSoundEnabled = enabled
+        UserDefaults.standard.set(enabled, forKey: "loginWakeSoundEnabled")
+        if enabled { playLoginWakeSound() }
     }
     func setAllowOnBattery(_ enabled: Bool) {
         allowOnBattery = enabled
@@ -91,6 +103,12 @@ import ServiceManagement
         restoreNormalPowerBehavior()
     }
     func goToSleep() {
+        guard !isPreparingForSleep else { return }
+        Task { await prepareAndSleep() }
+    }
+
+    private func prepareAndSleep() async {
+        isPreparingForSleep = true
         releaseAppAssertionOnly()
         let shouldRestoreLidOverride = lidOverrideDesired || lidOverrideActive
         do {
@@ -98,11 +116,17 @@ import ServiceManagement
                 restoreLidOverrideAfterWake = true
                 UserDefaults.standard.set(true, forKey: "restoreLidOverrideAfterWake")
                 try LidSleepOverride.setEnabled(false)
+                for _ in 0..<20 {
+                    if try !LidSleepOverride.isEnabled() { break }
+                    try await Task.sleep(for: .milliseconds(100))
+                }
+                guard try !LidSleepOverride.isEnabled() else { throw SystemSleepError.sleepDisabled }
                 lidOverrideActive = false
             }
             try SystemSleep.sleepNow()
             lastActionError = nil
         } catch {
+            isPreparingForSleep = false
             if shouldRestoreLidOverride { try? restoreDesiredLidOverride() }
             lastActionError = error.localizedDescription
             refresh()
@@ -143,8 +167,10 @@ import ServiceManagement
     }
 
     private func handleWake() {
+        isPreparingForSleep = false
         refresh()
-        if dimBuiltInAtLogin { dimBuiltInDisplay() }
+        playLoginWakeSound()
+        if dimBuiltInAtLogin { scheduleBuiltInDisplayDim() }
         if restoreLidOverrideAfterWake && lidOverrideDesired {
             do {
                 try restoreDesiredLidOverride()
@@ -153,6 +179,29 @@ import ServiceManagement
                 lastActionError = error.localizedDescription
             }
             refresh()
+        }
+    }
+
+    private func playLoginWakeSound() {
+        guard loginWakeSoundEnabled, Date().timeIntervalSince(lastLoginWakeSound) >= 2 else { return }
+        lastLoginWakeSound = Date()
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/afplay")
+        process.arguments = ["-t", "0.07", "/System/Library/Sounds/Purr.aiff"]
+        try? process.run()
+    }
+
+    private static func initialLoginWakeSoundSetting() -> Bool {
+        if let saved = UserDefaults.standard.object(forKey: "loginWakeSoundEnabled") as? Bool { return saved }
+        return FileManager.default.fileExists(atPath: NSHomeDirectory() + "/Library/LaunchAgents/com.eky.login-beep.plist")
+    }
+
+    private func scheduleBuiltInDisplayDim() {
+        dimTask?.cancel()
+        dimTask = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled, self?.dimBuiltInAtLogin == true else { return }
+            self?.dimBuiltInDisplay()
         }
     }
 
