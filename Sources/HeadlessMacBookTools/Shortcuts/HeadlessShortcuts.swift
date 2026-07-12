@@ -2,7 +2,7 @@ import AppIntents
 
 struct RunHeadlessToolIntent: AppIntent {
     static let title: LocalizedStringResource = "Run Headless Tool"
-    static let description = IntentDescription("Runs an AirPlay or SideScreen action through Headless MacBook Tools.")
+    static let description = IntentDescription("Runs an AirPlay or SideScreen action through Headless MacOS Tools.")
 
     @Parameter(title: "Action") var action: ShortcutAction
 
@@ -17,7 +17,7 @@ enum ShortcutAction: String, AppEnum {
 
     static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Headless Action")
     static let caseDisplayRepresentations: [Self: DisplayRepresentation] = [
-        .airPlay: "Connect to AirPlay Display",
+        .airPlay: "Start Auto AirPlay",
         .sideScreenUSB: "Start SideScreen USB",
         .sideScreenWireless: "Start SideScreen Wireless"
     ]

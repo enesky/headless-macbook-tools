@@ -9,7 +9,7 @@ enum ToolAction: String, CaseIterable, Sendable {
 
     var title: String {
         switch self {
-        case .airPlay: "Connect to AirPlay Display"
+        case .airPlay: "Start Auto AirPlay"
         case .sideScreenUSB: "Start SideScreen USB"
         case .sideScreenWireless: "Start SideScreen Wireless"
         }
