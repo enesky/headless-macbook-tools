@@ -92,7 +92,7 @@ struct MenuContentView: View {
                     }
             }
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
-                ForEach(ShortcutCommand.allCases) { shortcutButton($0) }
+                ForEach([ShortcutCommand.airPlay, .sideScreenUSB, .sleepNow, .sideScreenWireless]) { shortcutButton($0) }
             }
             if !shortcuts.registrationErrors.isEmpty {
                 Label("Some shortcuts are already in use. Click Edit to choose new combinations.", systemImage: "exclamationmark.triangle")
@@ -141,19 +141,36 @@ struct MenuContentView: View {
                 .fixedSize(horizontal: false, vertical: true)
             ForEach(ShortcutCommand.allCases) { command in
                 VStack(alignment: .leading, spacing: 3) {
-                    HStack {
-                        Label(command.title, systemImage: command.icon)
+                    HStack(spacing: 8) {
+                        Image(systemName: command.icon)
+                            .frame(width: 20, alignment: .center)
+                        Text(command.title)
+                            .lineLimit(1)
                         Spacer()
-                        Button(shortcuts.recording == command ? "Press keys…" : shortcuts.bindings[command]?.readableDisplay ?? "Set") {
-                            shortcuts.beginRecording(command)
+                        Button { shortcuts.beginRecording(command) } label: {
+                            Text(shortcuts.recording == command ? "Press keys…" : shortcuts.bindings[command]?.readableDisplay ?? "Set")
+                                .font(.caption2)
+                                .foregroundStyle(shortcuts.recording == command ? Color.accentColor : .secondary)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding(.horizontal, 9)
+                                .frame(width: 190)
+                                .frame(minHeight: 38)
+                                .background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(.separator.opacity(0.55), lineWidth: 0.5)
+                                }
+                                .contentShape(Rectangle())
                         }
-                        .frame(minWidth: 190)
+                        .buttonStyle(.plain)
                     }
                     if let error = shortcuts.registrationErrors[command] {
                         Text(error)
                             .font(.caption2)
                             .foregroundStyle(.red)
                             .fixedSize(horizontal: false, vertical: true)
+                            .padding(.leading, 28)
                     }
                 }
             }

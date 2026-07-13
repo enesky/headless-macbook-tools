@@ -1,6 +1,6 @@
 enum LidState: Equatable, Sendable {
     case open, closed, unavailable
-    var text: String { switch self { case .open: "Open"; case .closed: "Closed"; case .unavailable: "Unavailable" } }
+    var text: String { switch self { case .open: "Open"; case .closed: "Closed"; case .unavailable: "Not Connected" } }
 }
 
 enum ActiveMode: Equatable, Sendable {
