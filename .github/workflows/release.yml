@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build release archive
+        run: ./script/package_release.sh "$GITHUB_REF_NAME"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ZIP_PATH="dist/Headless-MacOS-Tools-$GITHUB_REF_NAME.zip"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" "$ZIP_PATH" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$ZIP_PATH" --title "$GITHUB_REF_NAME" --notes "Headless MacOS Tools $GITHUB_REF_NAME"
+          fi
