@@ -1,6 +1,6 @@
 # Halftop
 
-A menu-bar-only macOS utility that collects headless Mac workflows in one native SwiftUI app.
+A native SwiftUI menu bar app with macOS utilities and automation tools for halftop and headless MacBook setups.
 
 ## Preview
 
@@ -10,75 +10,32 @@ A menu-bar-only macOS utility that collects headless Mac workflows in one native
 
 ## Features
 
-- Live 2×3 status overview for the built-in display, external monitor, AirPlay, lid, power source, and active Energy Mode
-- Clamshell readiness based on physical external-display and power-adapter state
-- Optional battery operation and experimental lid-close override
-- Built-in display dimming and an explicit disable switch; dimming is hidden while the display is disabled
-- Separate Automatic, Low Power, and supported High Power mode controls for battery and power-adapter use
-- AirPlay display selection
-- SideScreen USB and wireless launch actions
-- Automatic re-sleep and bag-wake protection
-- Low-battery and lock-screen voice alerts, plus a login, wake, and unlock sound
-- App Intents for AirPlay and SideScreen actions
-- URL actions: `halftop://airplay`, `halftop://sidescreen-usb`, and `halftop://sidescreen-wireless`
+- **At-a-glance status:** built-in and external displays, AirPlay, lid, power source, and Energy Mode in one 2×3 overview.
+- **Clamshell controls:** checks the connected display and power adapter, supports optional battery operation, and includes an experimental lid-close override.
+- **Display and power:** dims or disables the built-in display and controls Automatic, Low Power, and supported High Power modes separately for battery and adapter use.
+- **AirPlay and [SideScreen](SideScreen/):** selects an AirPlay display or launches [SideScreen](SideScreen/) directly in USB or Wi-Fi mode—no connection-mode selection required.
+- **Sleep and alerts:** provides automatic re-sleep, bag-wake protection, low-battery and lock-screen voice alerts, and login, wake, and unlock sounds.
+- **Global shortcuts:** customizable from the app's **SHORTCUTS** section.
+  - `⌃⌥A` — Start Auto Airplay: Discovers available AirPlay displays, reads them aloud, and connects to the one selected with a number key.
+  - `⌃⌥S` — SideScreen USB: Opens [SideScreen](SideScreen/), auto-selects USB mode and starts the connection automatically.
+  - `⌃⌥W` — SideScreen Wireless: Opens [SideScreen](SideScreen/), auto-selects Wi-Fi mode and starts the connection automatically.
+  - `⌃⌥⌘S` — Sleep Now: Puts the Mac to sleep, even while Halftop’s sleep prevention is enabled.
 
-The app is an `LSUIElement` and does not appear in the Dock. Its menu icon is a template image that adapts to light and dark menu bars.
+## Install
 
-## Project layout
+Requires macOS 14 or later on Apple Silicon.
 
-- `Sources/`: SwiftUI app, system monitoring, power management, App Intents, and the privileged lid helper
-- `Tools/`: the only source copies of the scripts and helper tools launched or managed by the app
-- `Assets/`: menu-bar artwork
-- `script/build_and_run.sh`: build, bundle, sign, launch, and verify entry point
+1. Download the latest `Halftop-v*.zip` from [GitHub Releases](https://github.com/enesky/halftop/releases/latest).
+2. Unzip it and move `Halftop.app` to **Applications**.
+3. Open Halftop. It runs from the menu bar and does not appear in the Dock.
 
-Enabled background tools install their runtime copies under:
+## Build from source
 
-```text
-~/Library/Application Support/Halftop/Agents
-```
-
-Their source remains in this repository's `Tools/` directory.
-
-## Build and run
-
-Requirements: macOS 14+, Apple Silicon, and the Swift toolchain included with the installed Command Line Tools.
+For development, install Xcode Command Line Tools and run:
 
 ```zsh
 ./script/build_and_run.sh
-./script/build_and_run.sh --verify
 ```
 
-The staged application is written to `dist/Halftop.app` and ad-hoc signed.
-
-### Identified Developer release
-
-Local builds are ad-hoc signed, so macOS labels their background items as coming from an unidentified developer. For distribution, install a `Developer ID Application` certificate from the Apple Developer Program, then pass its complete Keychain identity:
-
-```zsh
-SIGNING_IDENTITY="Developer ID Application: Your Name (TEAMID)" ./script/package_release.sh v0.2.1
-```
-
-When a Developer ID identity is supplied, the release script enables hardened runtime and a secure timestamp. Submit the resulting ZIP with `xcrun notarytool`, then staple the accepted ticket to the distributed app or disk image.
-
-## Shortcuts and keyboard shortcuts
-
-The app exposes `Run Halftop Tool` through App Intents. Use the Shortcuts app to select the action and assign a keyboard shortcut from the shortcut's Details panel.
-
-App Intents can provide actions and preconfigured App Shortcuts, but macOS keeps the actual keyboard combination as a user-owned Shortcuts preference. The app does not modify that preference programmatically.
-
-Halftop also provides native global keyboard shortcuts that do not depend on the Shortcuts app:
-
-- `Control + Option + A`: Start Auto AirPlay
-- `Control + Option + S`: SideScreen USB
-- `Control + Option + W`: SideScreen Wireless
-- `Control + Option + Command + S`: Sleep Now
-
-The `SHORTCUTS` section runs each action directly. Click `Edit` to record different combinations; changes are stored in the app's preferences. If an existing macOS service or Shortcuts workflow already owns a combination, the app shows a conflict and leaves that global shortcut inactive until a free combination is selected.
-
-## Permissions
-
-- AirPlay UI automation may require Accessibility and Automation access.
-- SideScreen requires Screen & System Audio Recording access; its UI fallback may also require Accessibility.
-- The experimental lid-close override and Energy Mode controls install a narrowly scoped privileged helper after administrator approval.
-
-The normal Clamshell Ready path uses a temporary IOKit power assertion. Energy Mode changes use macOS power-management settings and are verified against the current system state. The lid-close override is not a supported public Apple API and changes a system-wide battery sleep setting.
+This builds, bundles, signs, and opens `dist/Halftop.app`.
+Use `./script/build_and_run.sh --verify` to also confirm that the app launched successfully.
