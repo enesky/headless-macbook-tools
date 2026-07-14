@@ -2,7 +2,7 @@
 set -eu
 
 SRC_DIR="${0:A:h}"
-SCRIPT_DIR="$HOME/Library/Application Support/Headless MacBook Tools/Agents/bag-sleep-guard"
+SCRIPT_DIR="$HOME/Library/Application Support/Halftop/Agents/bag-sleep-guard"
 AGENT_DIR="$HOME/Library/LaunchAgents"
 LABEL="com.eky.bag-sleep-guard"
 

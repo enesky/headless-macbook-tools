@@ -3,10 +3,10 @@ set -eu
 
 script="${0:A}"
 label="com.eky.battery-voice-alert"
-install_dir="$HOME/Library/Application Support/Headless MacBook Tools/Agents/battery-voice-alert"
+install_dir="$HOME/Library/Application Support/Halftop/Agents/battery-voice-alert"
 bin="$install_dir/BatteryVoiceAlert.command"
 plist="$HOME/Library/LaunchAgents/$label.plist"
-state_dir="$HOME/Library/Application Support/Headless MacBook Tools/State/BatteryVoiceAlert"
+state_dir="$HOME/Library/Application Support/Halftop/State/BatteryVoiceAlert"
 state="$state_dir/last-alert"
 
 percent() {

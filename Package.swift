@@ -2,14 +2,14 @@
 import PackageDescription
 
 let package = Package(
-    name: "HeadlessMacBookTools",
+    name: "Halftop",
     platforms: [.macOS(.v14)],
-    products: [.executable(name: "HeadlessMacBookTools", targets: ["HeadlessMacBookTools"])],
+    products: [.executable(name: "Halftop", targets: ["Halftop"])],
     targets: [
-        .executableTarget(name: "HeadlessMacBookTools"),
+        .executableTarget(name: "Halftop"),
         .executableTarget(
             name: "ClamshellReadyLidDaemon",
-            path: "Sources/HeadlessMacBookToolsLidDaemon"
+            path: "Sources/HalftopLidDaemon"
         )
     ]
 )

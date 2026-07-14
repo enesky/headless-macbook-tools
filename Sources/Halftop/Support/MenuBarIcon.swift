@@ -6,7 +6,7 @@ import CoreImage
         let image = NSImage(size: NSSize(width: 18, height: 18))
         let context = CIContext()
 
-        for name in ["headless-menu-iconTemplate", "headless-menu-iconTemplate@2x"] {
+        for name in ["halftop-menu-iconTemplate", "halftop-menu-iconTemplate@2x"] {
             guard let url = Bundle.main.url(forResource: name, withExtension: "png"),
                   let source = CIImage(contentsOf: url),
                   let inverted = CIFilter(name: "CIColorInvert", parameters: [kCIInputImageKey: source])?.outputImage,

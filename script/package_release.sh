@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION_TAG="${1:-${GITHUB_REF_NAME:-v0.1.0}}"
+VERSION_TAG="${1:-${GITHUB_REF_NAME:-v0.2.1}}"
 VERSION="${VERSION_TAG#v}"
-APP_NAME="Headless MacOS Tools"
-EXECUTABLE_NAME="HeadlessMacBookTools"
-BUNDLE_ID="com.eky.HeadlessMacBookTools"
+APP_NAME="Halftop"
+EXECUTABLE_NAME="Halftop"
+BUNDLE_ID="com.eky.Halftop"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST_DIR="$ROOT_DIR/dist"
 APP_BUNDLE="$DIST_DIR/$APP_NAME.app"
 CONTENTS="$APP_BUNDLE/Contents"
-ZIP_PATH="$DIST_DIR/Headless-MacOS-Tools-$VERSION_TAG.zip"
+ZIP_PATH="$DIST_DIR/Halftop-$VERSION_TAG.zip"
 
 export SDKROOT="${SDKROOT:-$(xcrun --sdk macosx --show-sdk-path)}"
 export CLANG_MODULE_CACHE_PATH="$ROOT_DIR/.clang-module-cache"
@@ -27,9 +27,9 @@ mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources" "$CONTENTS/Library/PrivilegedHe
 cp "$BIN_DIR/$EXECUTABLE_NAME" "$CONTENTS/MacOS/$EXECUTABLE_NAME"
 cp "$BIN_DIR/ClamshellReadyLidDaemon" "$CONTENTS/Library/PrivilegedHelpers/ClamshellReadyLidDaemon"
 cp -R "$ROOT_DIR/Tools" "$CONTENTS/Resources/Tools"
-cp "$ROOT_DIR/Assets/MenuBar/headless-menu-iconTemplate.png" "$CONTENTS/Resources/"
-cp "$ROOT_DIR/Assets/MenuBar/headless-menu-iconTemplate@2x.png" "$CONTENTS/Resources/"
-cp "$ROOT_DIR/Assets/HeadlessMacOSTools.icns" "$CONTENTS/Resources/"
+cp "$ROOT_DIR/Assets/MenuBar/halftop-menu-iconTemplate.png" "$CONTENTS/Resources/"
+cp "$ROOT_DIR/Assets/MenuBar/halftop-menu-iconTemplate@2x.png" "$CONTENTS/Resources/"
+cp "$ROOT_DIR/Assets/Halftop.icns" "$CONTENTS/Resources/"
 chmod +x "$CONTENTS/MacOS/$EXECUTABLE_NAME" "$CONTENTS/Library/PrivilegedHelpers/ClamshellReadyLidDaemon"
 find "$CONTENTS/Resources/Tools" -type f \( -name '*.sh' -o -name '*.command' \) -exec chmod +x {} +
 
@@ -41,7 +41,7 @@ cat > "$CONTENTS/Info.plist" <<PLIST
   <key>CFBundleIdentifier</key><string>$BUNDLE_ID</string>
   <key>CFBundleName</key><string>$APP_NAME</string>
   <key>CFBundleDisplayName</key><string>$APP_NAME</string>
-  <key>CFBundleIconFile</key><string>HeadlessMacOSTools.icns</string>
+  <key>CFBundleIconFile</key><string>Halftop.icns</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>$VERSION</string>
   <key>CFBundleVersion</key><string>$VERSION</string>
@@ -50,7 +50,7 @@ cat > "$CONTENTS/Info.plist" <<PLIST
   <key>NSPrincipalClass</key><string>NSApplication</string>
   <key>CFBundleURLTypes</key><array><dict>
     <key>CFBundleURLName</key><string>$BUNDLE_ID.actions</string>
-    <key>CFBundleURLSchemes</key><array><string>headlesstools</string></array>
+    <key>CFBundleURLSchemes</key><array><string>halftop</string></array>
   </dict></array>
 </dict></plist>
 PLIST

@@ -3,10 +3,10 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SOURCE_FILE="$ROOT_DIR/Sources/HeadlessAutoResleep.swift"
-INSTALL_DIR="$HOME/Library/Application Support/Headless MacBook Tools/Agents/headless-auto-resleep"
+INSTALL_DIR="$HOME/Library/Application Support/Halftop/Agents/headless-auto-resleep"
 BINARY_DIR="$INSTALL_DIR"
 BINARY_FILE="$BINARY_DIR/HeadlessAutoResleep"
-MODULE_CACHE="$HOME/Library/Caches/Headless MacBook Tools/headless-auto-resleep"
+MODULE_CACHE="$HOME/Library/Caches/Halftop/headless-auto-resleep"
 PLIST_FILE="$HOME/Library/LaunchAgents/com.eky.headless-auto-resleep.plist"
 LABEL="com.eky.headless-auto-resleep"
 

@@ -2,7 +2,7 @@
 
 [English](README.md) | [Türkçe](README.tr.md)
 
-[Main repository: Headless MacBook Tools](../README.md)
+[Main repository: Halftop](../README.md)
 
 <div align="center">
 
@@ -51,7 +51,7 @@ Built entirely open-source, Side Screen is designed to be fast, lightweight, and
 
 ### This Repository's Version
 
-Side Screen is an [open-source project and application](https://github.com/tranvuongquocdat/SideScreen). The customized version included in Headless MacBook Tools adds automation and auto-connect workflows for headless operation. These additions include `sidescreen://auto-start-usb`, the `--auto-start-usb` launch option, in-app USB auto-start handling, and companion launcher/UI automation scripts under [`Auto-SideScreen-USB`](../Auto-SideScreen-USB/README.md).
+Side Screen is an [open-source project and application](https://github.com/tranvuongquocdat/SideScreen). The customized version included in Halftop adds automation and auto-connect workflows for headless operation. These additions include `sidescreen://auto-start-usb`, the `--auto-start-usb` launch option, in-app USB auto-start handling, and companion launcher/UI automation scripts under [`Auto-SideScreen-USB`](../Auto-SideScreen-USB/README.md).
 
 For full details, features, and documentation, please visit **[sidescreen.dev](https://sidescreen.dev)**
 

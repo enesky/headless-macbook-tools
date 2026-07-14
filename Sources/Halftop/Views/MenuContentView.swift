@@ -61,7 +61,7 @@ struct MenuContentView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 28, height: 28)
-            Text("Headless MacOS Tools").font(.headline)
+            Text("Halftop").font(.headline)
             Spacer()
         }
     }
@@ -249,7 +249,7 @@ struct MenuContentView: View {
             Text("Clamshell Ready").font(.headline)
             Text("Keeps the Mac awake for an external-display workflow. By default, a physical external display and power adapter must both be connected.")
                 .foregroundStyle(.secondary)
-            infoRow("Launch at Login", "Starts Headless MacOS Tools automatically after you sign in.")
+            infoRow("Launch at Login", "Starts Halftop automatically after you sign in.")
             infoRow("Allow on Battery", "Also keeps the Mac awake without a power adapter when a physical external display is connected.")
             infoRow("Ignore Lid Close", "Uses an unsupported system-wide sleep override. It may require administrator approval and should be used carefully.")
             infoRow("Dim Built-in Display", "Sets only the MacBook's built-in display brightness to zero.")

@@ -3,9 +3,9 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SOURCE_FILE="$ROOT_DIR/Sources/LockScreenSayer.swift"
-INSTALL_DIR="$HOME/Library/Application Support/Headless MacBook Tools/Agents/lock-screen-sayer"
+INSTALL_DIR="$HOME/Library/Application Support/Halftop/Agents/lock-screen-sayer"
 BINARY_FILE="$INSTALL_DIR/LockScreenSayer"
-MODULE_CACHE="$HOME/Library/Caches/Headless MacBook Tools/lock-screen-sayer"
+MODULE_CACHE="$HOME/Library/Caches/Halftop/lock-screen-sayer"
 PLIST_FILE="$HOME/Library/LaunchAgents/com.eky.lock-screen-sayer.plist"
 PHRASE="${1:-Lock Screen}"
 

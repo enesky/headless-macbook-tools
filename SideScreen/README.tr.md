@@ -2,7 +2,7 @@
 
 [English](README.md) | [Türkçe](README.tr.md)
 
-[Ana repo: Headless MacBook Tools](../README.tr.md)
+[Ana repo: Halftop](../README.tr.md)
 
 <div align="center">
 
@@ -31,7 +31,7 @@ Apple Sidecar yalnızca iPad ile çalışırken Side Screen, Android tabletleri 
 
 ### Bu Repodaki Sürüm
 
-Side Screen, [açık kaynak bir proje ve uygulamadır](https://github.com/tranvuongquocdat/SideScreen). Headless MacBook Tools içindeki özelleştirilmiş sürüm, headless kullanım için otomasyon ve auto-connect akışları ekler. Bu geliştirmeler; `sidescreen://auto-start-usb`, `--auto-start-usb` başlatma seçeneği, uygulama içi USB auto-start işleyişi ve [`Auto-SideScreen-USB`](../Auto-SideScreen-USB/README.tr.md) altındaki yardımcı launcher/UI otomasyon scriptlerini kapsar.
+Side Screen, [açık kaynak bir proje ve uygulamadır](https://github.com/tranvuongquocdat/SideScreen). Halftop içindeki özelleştirilmiş sürüm, headless kullanım için otomasyon ve auto-connect akışları ekler. Bu geliştirmeler; `sidescreen://auto-start-usb`, `--auto-start-usb` başlatma seçeneği, uygulama içi USB auto-start işleyişi ve [`Auto-SideScreen-USB`](../Auto-SideScreen-USB/README.tr.md) altındaki yardımcı launcher/UI otomasyon scriptlerini kapsar.
 
 Ayrıntılı bilgi için [sidescreen.dev](https://sidescreen.dev) adresini ziyaret edin.
 

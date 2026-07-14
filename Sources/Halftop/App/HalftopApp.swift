@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 @main
-struct HeadlessMacBookToolsApp: App {
+struct HalftopApp: App {
     @StateObject private var monitor: SystemMonitor
     @StateObject private var tools: ToolController
     @StateObject private var shortcuts: GlobalShortcutStore
@@ -23,7 +23,7 @@ struct HeadlessMacBookToolsApp: App {
                 .onOpenURL { tools.run(url: $0) }
         } label: {
             Image(nsImage: MenuBarIcon.image)
-                .accessibilityLabel("Headless MacOS Tools")
+                .accessibilityLabel("Halftop")
         }
         .menuBarExtraStyle(.window)
     }

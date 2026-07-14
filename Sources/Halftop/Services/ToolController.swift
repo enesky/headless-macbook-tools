@@ -57,7 +57,7 @@ struct ManagedService: Identifiable, Sendable {
     }
 
     func run(url: URL) {
-        guard url.scheme == "headlesstools",
+        guard url.scheme == "halftop",
               let action = ToolAction(rawValue: url.host ?? "") else { return }
         run(action)
     }

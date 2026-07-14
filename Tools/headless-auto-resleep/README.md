@@ -1,11 +1,11 @@
 # Headless Auto Re-Sleep
 
-A LaunchAgent managed by Headless MacOS Tools. After wake it checks for a physical external display, an unlocked session, and recent keyboard or trackpad input. If none is present, it announces auto re-sleep and asks macOS to sleep again.
+A LaunchAgent managed by Halftop. After wake it checks for a physical external display, an unlocked session, and recent keyboard or trackpad input. If none is present, it announces auto re-sleep and asks macOS to sleep again.
 
 Runtime files are installed under:
 
 ```text
-~/Library/Application Support/Headless MacBook Tools/Agents/headless-auto-resleep
+~/Library/Application Support/Halftop/Agents/headless-auto-resleep
 ```
 
 Log:
@@ -14,4 +14,4 @@ Log:
 tail -f ~/Library/Logs/headless-auto-resleep.log
 ```
 
-Normal installation and removal should be performed with the Automatic Re-Sleep switch in Headless MacOS Tools.
+Normal installation and removal should be performed with the Automatic Re-Sleep switch in Halftop.

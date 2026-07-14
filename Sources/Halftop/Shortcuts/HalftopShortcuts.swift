@@ -1,8 +1,8 @@
 import AppIntents
 
-struct RunHeadlessToolIntent: AppIntent {
-    static let title: LocalizedStringResource = "Run Headless Tool"
-    static let description = IntentDescription("Runs an AirPlay or SideScreen action through Headless MacOS Tools.")
+struct RunHalftopToolIntent: AppIntent {
+    static let title: LocalizedStringResource = "Run Halftop Tool"
+    static let description = IntentDescription("Runs an AirPlay or SideScreen action through Halftop.")
 
     @Parameter(title: "Action") var action: ShortcutAction
 
@@ -15,7 +15,7 @@ struct RunHeadlessToolIntent: AppIntent {
 enum ShortcutAction: String, AppEnum {
     case airPlay, sideScreenUSB, sideScreenWireless
 
-    static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Headless Action")
+    static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Halftop Action")
     static let caseDisplayRepresentations: [Self: DisplayRepresentation] = [
         .airPlay: "Start Auto AirPlay",
         .sideScreenUSB: "Start SideScreen USB",
@@ -31,16 +31,16 @@ enum ShortcutAction: String, AppEnum {
     }
 }
 
-struct HeadlessAppShortcuts: AppShortcutsProvider {
+struct HalftopAppShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
-            intent: RunHeadlessToolIntent(action: .airPlay),
+            intent: RunHalftopToolIntent(action: .airPlay),
             phrases: ["Start AirPlay with \(.applicationName)"],
             shortTitle: "Start AirPlay",
             systemImageName: "airplayvideo"
         )
         AppShortcut(
-            intent: RunHeadlessToolIntent(action: .sideScreenUSB),
+            intent: RunHalftopToolIntent(action: .sideScreenUSB),
             phrases: ["Start SideScreen USB with \(.applicationName)"],
             shortTitle: "SideScreen USB",
             systemImageName: "cable.connector"
@@ -48,7 +48,7 @@ struct HeadlessAppShortcuts: AppShortcutsProvider {
     }
 }
 
-private extension RunHeadlessToolIntent {
+private extension RunHalftopToolIntent {
     init(action: ShortcutAction) {
         self.init()
         self.action = action

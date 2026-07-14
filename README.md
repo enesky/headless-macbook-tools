@@ -1,11 +1,11 @@
-# Headless MacOS Tools
+# Halftop
 
-A menu-bar-only macOS utility that collects the headless MacBook workflows in one native SwiftUI app.
+A menu-bar-only macOS utility that collects headless Mac workflows in one native SwiftUI app.
 
 ## Preview
 
 <p align="center">
-  <img src="Assets/screenshot.png" alt="Headless MacOS Tools menu" width="354">
+  <img src="Assets/screenshot.png" alt="Halftop menu" width="354">
 </p>
 
 ## Features
@@ -20,7 +20,7 @@ A menu-bar-only macOS utility that collects the headless MacBook workflows in on
 - Automatic re-sleep and bag-wake protection
 - Low-battery and lock-screen voice alerts, plus a login, wake, and unlock sound
 - App Intents for AirPlay and SideScreen actions
-- URL actions: `headlesstools://airplay`, `headlesstools://sidescreen-usb`, and `headlesstools://sidescreen-wireless`
+- URL actions: `halftop://airplay`, `halftop://sidescreen-usb`, and `halftop://sidescreen-wireless`
 
 The app is an `LSUIElement` and does not appear in the Dock. Its menu icon is a template image that adapts to light and dark menu bars.
 
@@ -34,10 +34,10 @@ The app is an `LSUIElement` and does not appear in the Dock. Its menu icon is a 
 Enabled background tools install their runtime copies under:
 
 ```text
-~/Library/Application Support/Headless MacBook Tools/Agents
+~/Library/Application Support/Halftop/Agents
 ```
 
-The legacy support-directory name is kept to preserve existing background-tool installations. Their source remains in this repository's `Tools/` directory.
+Their source remains in this repository's `Tools/` directory.
 
 ## Build and run
 
@@ -48,15 +48,15 @@ Requirements: macOS 14+, Apple Silicon, and the Swift toolchain included with th
 ./script/build_and_run.sh --verify
 ```
 
-The staged application is written to `dist/Headless MacOS Tools.app` and ad-hoc signed.
+The staged application is written to `dist/Halftop.app` and ad-hoc signed.
 
 ## Shortcuts and keyboard shortcuts
 
-The app exposes `Run Headless Tool` through App Intents. Use the Shortcuts app to select the action and assign a keyboard shortcut from the shortcut's Details panel.
+The app exposes `Run Halftop Tool` through App Intents. Use the Shortcuts app to select the action and assign a keyboard shortcut from the shortcut's Details panel.
 
 App Intents can provide actions and preconfigured App Shortcuts, but macOS keeps the actual keyboard combination as a user-owned Shortcuts preference. The app does not modify that preference programmatically.
 
-Headless MacOS Tools also provides native global keyboard shortcuts that do not depend on the Shortcuts app:
+Halftop also provides native global keyboard shortcuts that do not depend on the Shortcuts app:
 
 - `Control + Option + A`: Start Auto AirPlay
 - `Control + Option + S`: SideScreen USB
