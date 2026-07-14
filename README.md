@@ -10,8 +10,11 @@ A menu-bar-only macOS utility that collects the headless MacBook workflows in on
 
 ## Features
 
+- Live 2×3 status overview for the built-in display, external monitor, AirPlay, lid, power source, and active Energy Mode
 - Clamshell readiness based on physical external-display and power-adapter state
 - Optional battery operation and experimental lid-close override
+- Built-in display dimming and an explicit disable switch; dimming is hidden while the display is disabled
+- Separate Automatic, Low Power, and supported High Power mode controls for battery and power-adapter use
 - AirPlay display selection
 - SideScreen USB and wireless launch actions
 - Automatic re-sleep and bag-wake protection
@@ -66,6 +69,6 @@ The `SHORTCUTS` section runs each action directly. Click `Edit` to record differ
 
 - AirPlay UI automation may require Accessibility and Automation access.
 - SideScreen requires Screen & System Audio Recording access; its UI fallback may also require Accessibility.
-- The experimental lid-close override installs a narrowly scoped privileged helper after administrator approval.
+- The experimental lid-close override and Energy Mode controls install a narrowly scoped privileged helper after administrator approval.
 
-The normal Clamshell Ready path uses a temporary IOKit power assertion. The lid-close override is not a supported public Apple API and changes a system-wide battery sleep setting.
+The normal Clamshell Ready path uses a temporary IOKit power assertion. Energy Mode changes use macOS power-management settings and are verified against the current system state. The lid-close override is not a supported public Apple API and changes a system-wide battery sleep setting.
