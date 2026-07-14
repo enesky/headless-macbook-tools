@@ -15,7 +15,6 @@ import ServiceManagement
     @Published private(set) var batteryEnergyMode: EnergyMode = .unavailable
     @Published private(set) var adapterEnergyMode: EnergyMode = .unavailable
     @Published private(set) var supportsHighPowerMode = false
-    @Published private(set) var isChangingEnergyMode = false
     @Published private(set) var lidState: LidState = .unavailable
     @Published private(set) var assertionActive = false
     @Published private(set) var lidOverrideActive = false
@@ -127,10 +126,9 @@ import ServiceManagement
         }
     }
     func setEnergyMode(_ mode: EnergyMode, for source: EnergyPowerSource) {
-        guard let energyModeKey, !isChangingEnergyMode else { return }
+        guard let energyModeKey else { return }
         energyModeRefreshTask?.cancel()
         energyModeSettlingUntil = Date().addingTimeInterval(8)
-        isChangingEnergyMode = true
         if source == .battery { batteryEnergyMode = mode } else { adapterEnergyMode = mode }
         energyMode = isOnACPower ? adapterEnergyMode : batteryEnergyMode
         energyModeRefreshTask = Task { @MainActor [weak self] in
@@ -147,14 +145,12 @@ import ServiceManagement
                     if confirmed == mode { break }
                 }
                 self.energyModeSettlingUntil = .distantPast
-                self.isChangingEnergyMode = false
                 self.lastActionError = nil
                 self.errorMessage = nil
                 self.refresh()
             } catch {
                 guard let self else { return }
                 self.energyModeSettlingUntil = .distantPast
-                self.isChangingEnergyMode = false
                 self.refresh()
                 self.lastActionError = error.localizedDescription
                 self.errorMessage = self.lastActionError

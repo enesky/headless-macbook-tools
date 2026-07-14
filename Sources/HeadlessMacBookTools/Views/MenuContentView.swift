@@ -127,7 +127,6 @@ struct MenuContentView: View {
             }
             .labelsHidden()
             .pickerStyle(.segmented)
-            .disabled(monitor.isChangingEnergyMode)
         }
     }
 
