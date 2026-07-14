@@ -2,7 +2,7 @@ import Darwin
 import Foundation
 
 enum LidHelperClient {
-    private static let socketPath = "/var/run/clamshell-ready-lid-helper.sock"
+    private static let socketPath = "/var/run/halftop-lid-helper.sock"
 
     static func send(_ command: String) throws {
         let fd = socket(AF_UNIX, SOCK_STREAM, 0)

@@ -4,7 +4,7 @@ set -euo pipefail
 MODE="${1:-run}"
 APP_NAME="Halftop"
 EXECUTABLE_NAME="Halftop"
-BUNDLE_ID="com.eky.Halftop"
+BUNDLE_ID="com.eky.halftop"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 APP_BUNDLE="$ROOT_DIR/dist/$APP_NAME.app"
@@ -14,6 +14,7 @@ export CLANG_MODULE_CACHE_PATH="$ROOT_DIR/.clang-module-cache"
 export SWIFTPM_MODULECACHE_OVERRIDE="$ROOT_DIR/.clang-module-cache"
 
 pkill -x "$EXECUTABLE_NAME" >/dev/null 2>&1 || true
+pkill -x "HeadlessMacBookTools" >/dev/null 2>&1 || true
 cd "$ROOT_DIR"
 swift build
 BIN_DIR="$(swift build --show-bin-path)"
@@ -21,12 +22,12 @@ BIN_DIR="$(swift build --show-bin-path)"
 rm -rf "$APP_BUNDLE"
 mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources" "$CONTENTS/Library/PrivilegedHelpers"
 cp "$BIN_DIR/$EXECUTABLE_NAME" "$CONTENTS/MacOS/$EXECUTABLE_NAME"
-cp "$BIN_DIR/ClamshellReadyLidDaemon" "$CONTENTS/Library/PrivilegedHelpers/ClamshellReadyLidDaemon"
+cp "$BIN_DIR/HalftopLidDaemon" "$CONTENTS/Library/PrivilegedHelpers/Halftop Privileged Helper"
 cp -R "$ROOT_DIR/Tools" "$CONTENTS/Resources/Tools"
 cp "$ROOT_DIR/Assets/MenuBar/halftop-menu-iconTemplate.png" "$CONTENTS/Resources/"
 cp "$ROOT_DIR/Assets/MenuBar/halftop-menu-iconTemplate@2x.png" "$CONTENTS/Resources/"
 cp "$ROOT_DIR/Assets/Halftop.icns" "$CONTENTS/Resources/"
-chmod +x "$CONTENTS/MacOS/$EXECUTABLE_NAME" "$CONTENTS/Library/PrivilegedHelpers/ClamshellReadyLidDaemon"
+chmod +x "$CONTENTS/MacOS/$EXECUTABLE_NAME" "$CONTENTS/Library/PrivilegedHelpers/Halftop Privileged Helper"
 find "$CONTENTS/Resources/Tools" -type f \( -name '*.sh' -o -name '*.command' \) -exec chmod +x {} +
 
 cat > "$CONTENTS/Info.plist" <<PLIST
@@ -44,6 +45,7 @@ cat > "$CONTENTS/Info.plist" <<PLIST
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>LSUIElement</key><true/>
   <key>NSPrincipalClass</key><string>NSApplication</string>
+  <key>NSAppleEventsUsageDescription</key><string>Halftop uses System Events to control Screen Mirroring and SideScreen.</string>
   <key>CFBundleURLTypes</key><array><dict>
     <key>CFBundleURLName</key><string>$BUNDLE_ID.actions</string>
     <key>CFBundleURLSchemes</key><array><string>halftop</string></array>

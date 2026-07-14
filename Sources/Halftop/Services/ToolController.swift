@@ -39,10 +39,10 @@ struct ManagedService: Identifiable, Sendable {
     @Published private(set) var serviceStates: [String: Bool] = [:]
 
     let services = [
-        ManagedService(id: "com.eky.headless-auto-resleep", title: "Automatic Re-Sleep", folder: "headless-auto-resleep", installer: "install.sh", uninstaller: "uninstall.sh", installArgument: nil),
-        ManagedService(id: "com.eky.bag-sleep-guard", title: "Bag Sleep Guard", folder: "bag-sleep-guard", installer: "install.sh", uninstaller: "uninstall.sh", installArgument: nil),
-        ManagedService(id: "com.eky.battery-voice-alert", title: "Low Battery Voice Alert", folder: "Battery Voice Alert", installer: "BatteryVoiceAlert.command", uninstaller: nil, installArgument: "install"),
-        ManagedService(id: "com.eky.lock-screen-sayer", title: "Lock Screen Voice Alert", folder: "lock-screen-sayer", installer: "install.sh", uninstaller: "uninstall.sh", installArgument: nil)
+        ManagedService(id: "com.eky.halftop.headless-auto-resleep", title: "Automatic Re-Sleep", folder: "headless-auto-resleep", installer: "install.sh", uninstaller: "uninstall.sh", installArgument: nil),
+        ManagedService(id: "com.eky.halftop.bag-sleep-guard", title: "Bag Sleep Guard", folder: "bag-sleep-guard", installer: "install.sh", uninstaller: "uninstall.sh", installArgument: nil),
+        ManagedService(id: "com.eky.halftop.battery-voice-alert", title: "Low Battery Voice Alert", folder: "Battery Voice Alert", installer: "Halftop", uninstaller: nil, installArgument: "install"),
+        ManagedService(id: "com.eky.halftop.lock-screen-sayer", title: "Lock Screen Voice Alert", folder: "lock-screen-sayer", installer: "install.sh", uninstaller: "uninstall.sh", installArgument: nil)
     ]
 
     init() { refreshServices() }
@@ -128,14 +128,11 @@ struct ManagedService: Identifiable, Sendable {
     }
 
     private nonisolated static func isLoaded(_ label: String) -> Bool {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/bin/launchctl")
-        process.arguments = ["print", "gui/\(getuid())/\(label)"]
-        process.standardOutput = FileHandle.nullDevice
-        process.standardError = FileHandle.nullDevice
-        try? process.run()
-        process.waitUntilExit()
-        return process.terminationStatus == 0
+        guard let feature = label.split(separator: ".").last else { return false }
+        let marker = FileManager.default
+            .homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Application Support/Halftop/Agents/.enabled/\(feature)")
+        return FileManager.default.fileExists(atPath: marker.path)
     }
 }
 

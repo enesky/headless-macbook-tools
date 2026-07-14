@@ -5,7 +5,8 @@ VERSION_TAG="${1:-${GITHUB_REF_NAME:-v0.2.1}}"
 VERSION="${VERSION_TAG#v}"
 APP_NAME="Halftop"
 EXECUTABLE_NAME="Halftop"
-BUNDLE_ID="com.eky.Halftop"
+BUNDLE_ID="com.eky.halftop"
+SIGNING_IDENTITY="${SIGNING_IDENTITY:--}"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST_DIR="$ROOT_DIR/dist"
@@ -25,12 +26,12 @@ BIN_DIR="$(swift build -c release --show-bin-path)"
 rm -rf "$APP_BUNDLE" "$ZIP_PATH"
 mkdir -p "$CONTENTS/MacOS" "$CONTENTS/Resources" "$CONTENTS/Library/PrivilegedHelpers"
 cp "$BIN_DIR/$EXECUTABLE_NAME" "$CONTENTS/MacOS/$EXECUTABLE_NAME"
-cp "$BIN_DIR/ClamshellReadyLidDaemon" "$CONTENTS/Library/PrivilegedHelpers/ClamshellReadyLidDaemon"
+cp "$BIN_DIR/HalftopLidDaemon" "$CONTENTS/Library/PrivilegedHelpers/Halftop Privileged Helper"
 cp -R "$ROOT_DIR/Tools" "$CONTENTS/Resources/Tools"
 cp "$ROOT_DIR/Assets/MenuBar/halftop-menu-iconTemplate.png" "$CONTENTS/Resources/"
 cp "$ROOT_DIR/Assets/MenuBar/halftop-menu-iconTemplate@2x.png" "$CONTENTS/Resources/"
 cp "$ROOT_DIR/Assets/Halftop.icns" "$CONTENTS/Resources/"
-chmod +x "$CONTENTS/MacOS/$EXECUTABLE_NAME" "$CONTENTS/Library/PrivilegedHelpers/ClamshellReadyLidDaemon"
+chmod +x "$CONTENTS/MacOS/$EXECUTABLE_NAME" "$CONTENTS/Library/PrivilegedHelpers/Halftop Privileged Helper"
 find "$CONTENTS/Resources/Tools" -type f \( -name '*.sh' -o -name '*.command' \) -exec chmod +x {} +
 
 cat > "$CONTENTS/Info.plist" <<PLIST
@@ -48,6 +49,7 @@ cat > "$CONTENTS/Info.plist" <<PLIST
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>LSUIElement</key><true/>
   <key>NSPrincipalClass</key><string>NSApplication</string>
+  <key>NSAppleEventsUsageDescription</key><string>Halftop uses System Events to control Screen Mirroring and SideScreen.</string>
   <key>CFBundleURLTypes</key><array><dict>
     <key>CFBundleURLName</key><string>$BUNDLE_ID.actions</string>
     <key>CFBundleURLSchemes</key><array><string>halftop</string></array>
@@ -55,7 +57,11 @@ cat > "$CONTENTS/Info.plist" <<PLIST
 </dict></plist>
 PLIST
 
-codesign --force --deep --sign - "$APP_BUNDLE" >/dev/null
+if [[ "$SIGNING_IDENTITY" == "-" ]]; then
+  codesign --force --deep --sign - "$APP_BUNDLE" >/dev/null
+else
+  codesign --force --deep --options runtime --timestamp --sign "$SIGNING_IDENTITY" "$APP_BUNDLE" >/dev/null
+fi
 codesign --verify --deep --strict "$APP_BUNDLE"
 (
   cd "$DIST_DIR"

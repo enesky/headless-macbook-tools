@@ -50,6 +50,16 @@ Requirements: macOS 14+, Apple Silicon, and the Swift toolchain included with th
 
 The staged application is written to `dist/Halftop.app` and ad-hoc signed.
 
+### Identified Developer release
+
+Local builds are ad-hoc signed, so macOS labels their background items as coming from an unidentified developer. For distribution, install a `Developer ID Application` certificate from the Apple Developer Program, then pass its complete Keychain identity:
+
+```zsh
+SIGNING_IDENTITY="Developer ID Application: Your Name (TEAMID)" ./script/package_release.sh v0.2.1
+```
+
+When a Developer ID identity is supplied, the release script enables hardened runtime and a secure timestamp. Submit the resulting ZIP with `xcrun notarytool`, then staple the accepted ticket to the distributed app or disk image.
+
 ## Shortcuts and keyboard shortcuts
 
 The app exposes `Run Halftop Tool` through App Intents. Use the Shortcuts app to select the action and assign a keyboard shortcut from the shortcut's Details panel.

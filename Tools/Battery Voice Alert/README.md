@@ -13,8 +13,8 @@ Runtime files are installed under:
 Manual diagnostics:
 
 ```zsh
-./BatteryVoiceAlert.command self-test
-./BatteryVoiceAlert.command check
+./Halftop self-test
+./Halftop check
 ```
 
 Normal installation and removal should be performed with the Low Battery Voice Alert switch in Halftop.

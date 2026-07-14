@@ -43,6 +43,7 @@ import ServiceManagement
 
     init() {
         ActiveMode.selfCheck()
+        Self.sleepWakeSelfCheck()
         refresh()
         UserDefaults.standard.set(loginWakeSoundEnabled, forKey: "loginWakeSoundEnabled")
         if loginWakeSoundEnabled { playLoginWakeSound() }
@@ -241,6 +242,10 @@ import ServiceManagement
     }
 
     private func handleWake() {
+        if isPreparingForSleep && !Self.isUserInitiatedWake(lidOpen: Self.detectLidState() == .open) {
+            refresh()
+            return
+        }
         isPreparingForSleep = false
         BuiltInDisplayControl.invalidateState()
         refresh()
@@ -255,6 +260,15 @@ import ServiceManagement
             }
             refresh()
         }
+    }
+
+    private static func isUserInitiatedWake(lidOpen: Bool) -> Bool {
+        lidOpen || [CGEventType.keyDown, .leftMouseDown, .rightMouseDown, .otherMouseDown, .mouseMoved, .scrollWheel]
+            .contains { CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: $0) < 1 }
+    }
+
+    private static func sleepWakeSelfCheck() {
+        assert(isUserInitiatedWake(lidOpen: true))
     }
 
     private func playLoginWakeSound() {

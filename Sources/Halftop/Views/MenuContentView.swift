@@ -12,8 +12,6 @@ struct MenuContentView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            header
-            Divider()
             systemStatus
             Divider()
             clamshellSection
@@ -46,24 +44,20 @@ struct MenuContentView: View {
             HStack {
                 Button("Refresh") { monitor.refresh(); tools.refreshServices() }
                 Spacer()
+                HStack(spacing: 3) {
+                    Text("Halftop by")
+                    Link("enesky", destination: URL(string: "https://github.com/enesky/halftop")!)
+                        .underline()
+                }
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                Spacer()
                 Button("Quit") { monitor.stop(); NSApplication.shared.terminate(nil) }
                     .keyboardShortcut("q")
             }
         }
         .padding(14)
         .frame(width: 360)
-    }
-
-    private var header: some View {
-        HStack {
-            Spacer()
-            Image(nsImage: MenuBarIcon.image)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 28, height: 28)
-            Text("Halftop").font(.headline)
-            Spacer()
-        }
     }
 
     private var systemStatus: some View {

@@ -8,7 +8,7 @@ let package = Package(
     targets: [
         .executableTarget(name: "Halftop"),
         .executableTarget(
-            name: "ClamshellReadyLidDaemon",
+            name: "HalftopLidDaemon",
             path: "Sources/HalftopLidDaemon"
         )
     ]

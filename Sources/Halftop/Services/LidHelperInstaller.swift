@@ -2,14 +2,14 @@ import Darwin
 import Foundation
 
 enum LidHelperInstaller {
-    private static let label = "com.eky.ClamshellReady.LidDaemon"
-    private static let installPath = "/usr/local/libexec/clamshell-ready-lid-daemon"
+    private static let label = "com.eky.halftop.lid-daemon"
+    private static let installPath = "/usr/local/libexec/Halftop Privileged Helper"
     private static let plistPath = "/Library/LaunchDaemons/\(label).plist"
-    private static let socketPath = "/var/run/clamshell-ready-lid-helper.sock"
+    private static let socketPath = "/var/run/halftop-lid-helper.sock"
 
     static func install() throws {
         let source = Bundle.main.bundleURL
-            .appendingPathComponent("Contents/Library/PrivilegedHelpers/ClamshellReadyLidDaemon")
+            .appendingPathComponent("Contents/Library/PrivilegedHelpers/Halftop Privileged Helper")
             .path
 
         guard FileManager.default.isExecutableFile(atPath: source) else {
@@ -17,11 +17,11 @@ enum LidHelperInstaller {
         }
 
         let tempDirectory = FileManager.default.temporaryDirectory
-            .appendingPathComponent("ClamshellReady-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("Halftop-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: tempDirectory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: tempDirectory) }
 
-        let plistURL = tempDirectory.appendingPathComponent("com.eky.ClamshellReady.LidDaemon.plist")
+        let plistURL = tempDirectory.appendingPathComponent("com.eky.halftop.lid-daemon.plist")
         let scriptURL = tempDirectory.appendingPathComponent("install-lid-daemon.sh")
 
         try launchDaemonPlist(allowedUID: getuid()).write(to: plistURL, atomically: true, encoding: .utf8)
@@ -58,9 +58,9 @@ enum LidHelperInstaller {
           <key>KeepAlive</key>
           <true/>
           <key>StandardOutPath</key>
-          <string>/var/log/clamshell-ready-lid-daemon.log</string>
+          <string>/var/log/Halftop.log</string>
           <key>StandardErrorPath</key>
-          <string>/var/log/clamshell-ready-lid-daemon.log</string>
+          <string>/var/log/Halftop.log</string>
         </dict>
         </plist>
         """
@@ -72,6 +72,9 @@ enum LidHelperInstaller {
         set -eu
 
         /bin/mkdir -p /usr/local/libexec
+        /bin/launchctl bootout system /Library/LaunchDaemons/com.eky.ClamshellReady.LidDaemon.plist >/dev/null 2>&1 || true
+        /bin/launchctl bootout system /Library/LaunchDaemons/com.eky.Halftop.LidDaemon.plist >/dev/null 2>&1 || true
+        /bin/rm -f /Library/LaunchDaemons/com.eky.ClamshellReady.LidDaemon.plist /Library/LaunchDaemons/com.eky.Halftop.LidDaemon.plist /usr/local/libexec/clamshell-ready-lid-daemon /usr/local/libexec/Halftop /var/run/clamshell-ready-lid-helper.sock
         /usr/bin/install -o root -g wheel -m 0755 \(source.shellQuoted) \(installPath.shellQuoted)
         /usr/bin/install -o root -g wheel -m 0644 \(plist.shellQuoted) \(plistPath.shellQuoted)
 

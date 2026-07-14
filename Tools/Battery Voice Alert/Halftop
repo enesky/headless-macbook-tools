@@ -2,10 +2,18 @@
 set -eu
 
 script="${0:A}"
-label="com.eky.battery-voice-alert"
+label="com.eky.halftop.battery-voice-alert"
+old_label="com.eky.battery-voice-alert"
 install_dir="$HOME/Library/Application Support/Halftop/Agents/battery-voice-alert"
-bin="$install_dir/BatteryVoiceAlert.command"
+bin="$install_dir/Halftop"
+shared_dir="$HOME/Library/Application Support/Halftop/Agents"
+enabled_dir="$shared_dir/.enabled"
+background_installer="${script:h:h}/Background Service/install.sh"
+old_bin="$install_dir/BatteryVoiceAlert.command"
+legacy_dir="$HOME/Library/Application Support/Headless MacBook Tools/Agents/battery-voice-alert"
 plist="$HOME/Library/LaunchAgents/$label.plist"
+old_plist="$HOME/Library/LaunchAgents/$old_label.plist"
+background_plist="$HOME/Library/LaunchAgents/com.eky.halftop.background-service.plist"
 state_dir="$HOME/Library/Application Support/Halftop/State/BatteryVoiceAlert"
 state="$state_dir/last-alert"
 
@@ -54,35 +62,26 @@ check() {
 }
 
 install_agent() {
-  /bin/mkdir -p "$install_dir" "$HOME/Library/LaunchAgents"
+  /bin/mkdir -p "$install_dir" "$enabled_dir" "$HOME/Library/LaunchAgents"
+  /bin/launchctl bootout "gui/$(/usr/bin/id -u)" "$plist" 2>/dev/null || true
+  /bin/launchctl bootout "gui/$(/usr/bin/id -u)" "$old_plist" 2>/dev/null || true
+  /bin/rm -f "$plist" "$old_plist"
+  /bin/rm -f "$old_bin"
+  /bin/rm -rf "$legacy_dir"
   /bin/cp "$script" "$bin"
   /bin/chmod +x "$bin"
-  /bin/cat > "$plist" <<PLIST
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key><string>$label</string>
-  <key>ProgramArguments</key>
-  <array>
-    <string>$bin</string>
-    <string>check</string>
-  </array>
-  <key>RunAtLoad</key><true/>
-  <key>StartInterval</key><integer>60</integer>
-</dict>
-</plist>
-PLIST
-  /bin/launchctl bootout "gui/$(/usr/bin/id -u)" "$plist" 2>/dev/null || true
-  /bin/launchctl bootstrap "gui/$(/usr/bin/id -u)" "$plist"
-  /bin/launchctl enable "gui/$(/usr/bin/id -u)/$label"
+  : > "$enabled_dir/battery-voice-alert"
+  "$background_installer"
   echo "Installed. Test: $bin check"
 }
 
 uninstall_agent() {
   /bin/launchctl bootout "gui/$(/usr/bin/id -u)" "$plist" 2>/dev/null || true
-  /bin/rm -f "$plist" "$bin"
+  /bin/launchctl bootout "gui/$(/usr/bin/id -u)" "$old_plist" 2>/dev/null || true
+  /bin/rm -f "$plist" "$old_plist" "$bin" "$old_bin" "$enabled_dir/battery-voice-alert"
+  /bin/rm -rf "$legacy_dir"
   /bin/rmdir "$install_dir" 2>/dev/null || true
+  "$background_installer"
   echo "Uninstalled."
 }
 

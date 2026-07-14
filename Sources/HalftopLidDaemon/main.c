@@ -11,7 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 
-static const char *socket_path = "/var/run/clamshell-ready-lid-helper.sock";
+static const char *socket_path = "/var/run/halftop-lid-helper.sock";
 static volatile sig_atomic_t should_stop = 0;
 
 static void handle_signal(int signal_number) {

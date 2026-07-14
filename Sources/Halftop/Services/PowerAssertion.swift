@@ -9,7 +9,7 @@ import IOKit.pwr_mgt
         if shouldBeActive == isActive { return }
         if shouldBeActive {
             var newID = IOPMAssertionID(kIOPMNullAssertionID)
-            let result = IOPMAssertionCreateWithName(kIOPMAssertionTypePreventSystemSleep as CFString, IOPMAssertionLevel(kIOPMAssertionLevelOn), "Clamshell Ready is active" as CFString, &newID)
+            let result = IOPMAssertionCreateWithName(kIOPMAssertionTypePreventSystemSleep as CFString, IOPMAssertionLevel(kIOPMAssertionLevelOn), "Halftop Clamshell Ready is active" as CFString, &newID)
             guard result == kIOReturnSuccess else { throw AssertionError.creationFailed(result) }
             id = newID
         } else { release() }
