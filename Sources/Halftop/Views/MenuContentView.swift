@@ -87,7 +87,10 @@ struct MenuContentView: View {
                 Text("SHORTCUTS")
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(.secondary)
-                Button { showingShortcutsInfo.toggle() } label: {
+                Button {
+                    tools.refreshSideScreen()
+                    showingShortcutsInfo.toggle()
+                } label: {
                     Image(systemName: "info.circle")
                         .font(.caption)
                         .foregroundStyle(.secondary)
@@ -199,21 +202,24 @@ struct MenuContentView: View {
 
     private func sideScreenInfo(installedMessage: String, updateMessage: String, missingMessage: String) -> some View {
         let isReady = tools.sideScreen.isSupported
-        return HStack(spacing: 8) {
-            Image(systemName: isReady ? "checkmark.circle" : "exclamationmark.triangle")
-                .foregroundStyle(isReady ? .green : .orange)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(tools.sideScreen.statusText)
-                    .font(.caption)
-                Text(isReady ? installedMessage : (tools.sideScreen.isInstalled ? updateMessage : missingMessage))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+        return VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Image(systemName: isReady ? "checkmark.circle" : "exclamationmark.triangle")
+                    .foregroundStyle(isReady ? .green : .orange)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(tools.sideScreen.statusText)
+                        .font(.caption)
+                    Text(isReady ? installedMessage : (tools.sideScreen.isInstalled ? updateMessage : missingMessage))
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                if !isReady {
+                    Link(tools.sideScreen.isInstalled ? "Update" : "Install", destination: SideScreenInstallation.releaseURL)
+                        .font(.caption)
+                }
             }
-            Spacer()
-            if !isReady {
-                Link(tools.sideScreen.isInstalled ? "Update" : "Install", destination: SideScreenInstallation.releaseURL)
-                    .font(.caption)
-            }
+
         }
     }
 
@@ -277,6 +283,7 @@ struct MenuContentView: View {
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(.secondary)
                 Button {
+                    tools.refreshSideScreen()
                     showingClamshellInfo.toggle()
                 } label: {
                     Image(systemName: "info.circle")

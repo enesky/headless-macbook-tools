@@ -13,8 +13,18 @@ export SDKROOT="/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk"
 export CLANG_MODULE_CACHE_PATH="$ROOT_DIR/.clang-module-cache"
 export SWIFTPM_MODULECACHE_OVERRIDE="$ROOT_DIR/.clang-module-cache"
 
-pkill -x "$EXECUTABLE_NAME" >/dev/null 2>&1 || true
-pkill -x "HeadlessMacBookTools" >/dev/null 2>&1 || true
+stop_process() {
+  local name="$1"
+  pkill -x "$name" >/dev/null 2>&1 || true
+  for _ in {1..50}; do
+    pgrep -x "$name" >/dev/null 2>&1 || return 0
+    sleep 0.1
+  done
+  pkill -9 -x "$name" >/dev/null 2>&1 || true
+}
+
+stop_process "$EXECUTABLE_NAME"
+stop_process "HeadlessMacBookTools"
 cd "$ROOT_DIR"
 swift build
 BIN_DIR="$(swift build --show-bin-path)"
@@ -40,8 +50,8 @@ cat > "$CONTENTS/Info.plist" <<PLIST
   <key>CFBundleDisplayName</key><string>$APP_NAME</string>
   <key>CFBundleIconFile</key><string>Halftop.icns</string>
   <key>CFBundlePackageType</key><string>APPL</string>
-  <key>CFBundleShortVersionString</key><string>0.3.0</string>
-  <key>CFBundleVersion</key><string>0.3.0</string>
+  <key>CFBundleShortVersionString</key><string>0.3.1</string>
+  <key>CFBundleVersion</key><string>0.3.1</string>
   <key>LSMinimumSystemVersion</key><string>14.0</string>
   <key>LSUIElement</key><true/>
   <key>NSPrincipalClass</key><string>NSApplication</string>

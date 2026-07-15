@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION_TAG="${1:-${GITHUB_REF_NAME:-v0.3.0}}"
+VERSION_TAG="${1:-${GITHUB_REF_NAME:-v0.3.1}}"
 VERSION="${VERSION_TAG#v}"
 APP_NAME="Halftop"
 EXECUTABLE_NAME="Halftop"

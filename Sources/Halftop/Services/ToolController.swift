@@ -42,6 +42,7 @@ enum ToolAction: String, CaseIterable, Sendable {
 struct SideScreenInstallation: Equatable, Sendable {
     let appURL: URL?
     let version: String?
+    let isQuarantined: Bool
 
     static let minimumVersion = "0.11.0"
     static let releasesURL = URL(string: "https://github.com/tranvuongquocdat/SideScreen/releases/latest")!
@@ -69,7 +70,7 @@ struct SideScreenInstallation: Equatable, Sendable {
     }
 
     var availabilityKey: String {
-        "\(appURL?.path ?? "none")|\(version ?? "none")"
+        "\(appURL?.path ?? "none")|\(version ?? "none")|\(isQuarantined)"
     }
 
     static func detect() -> SideScreenInstallation {
@@ -79,11 +80,26 @@ struct SideScreenInstallation: Equatable, Sendable {
         let version = appURL
             .flatMap(Bundle.init(url:))?
             .object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
-        return SideScreenInstallation(appURL: appURL, version: version)
+        return SideScreenInstallation(appURL: appURL, version: version, isQuarantined: appURL.map(hasQuarantineAttribute) ?? false)
     }
 
     private static func isUsableAppURL(_ url: URL) -> Bool {
         FileManager.default.fileExists(atPath: url.path) && !url.path.contains("/.Trash/")
+    }
+
+    private static func hasQuarantineAttribute(_ url: URL) -> Bool {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/xattr")
+        process.arguments = ["-p", "com.apple.quarantine", url.path]
+        process.standardOutput = Pipe()
+        process.standardError = Pipe()
+        do {
+            try process.run()
+            process.waitUntilExit()
+            return process.terminationStatus == 0
+        } catch {
+            return false
+        }
     }
 }
 
@@ -101,6 +117,7 @@ struct ManagedService: Identifiable, Sendable {
     @Published private(set) var busyService: String?
     @Published private(set) var serviceStates: [String: Bool] = [:]
     @Published private(set) var sideScreen = SideScreenInstallation.detect()
+    private var gatekeeperFixInProgress = false
 
     let services = [
         ManagedService(id: "com.eky.halftop.headless-auto-resleep", title: "Automatic Re-Sleep", folder: "headless-auto-resleep", installer: "install.sh", uninstaller: "uninstall.sh", installArgument: nil),
@@ -163,6 +180,34 @@ struct ManagedService: Identifiable, Sendable {
         let detected = SideScreenInstallation.detect()
         if detected != sideScreen {
             sideScreen = detected
+        }
+        fixSideScreenGatekeeperIfNeeded()
+    }
+
+    func fixSideScreenGatekeeper() {
+        fixSideScreenGatekeeperIfNeeded(reportStatus: true)
+    }
+
+    private func fixSideScreenGatekeeperIfNeeded(reportStatus: Bool = false) {
+        guard !gatekeeperFixInProgress,
+              sideScreen.isSupported,
+              sideScreen.isQuarantined,
+              let appURL = sideScreen.appURL else { return }
+        gatekeeperFixInProgress = true
+        if reportStatus {
+            lastMessage = "Fixing SideScreen Gatekeeper..."
+        }
+        Task {
+            do {
+                try await Self.removeQuarantine(from: appURL)
+                if reportStatus {
+                    lastMessage = "SideScreen Gatekeeper fixed"
+                }
+            } catch {
+                lastMessage = error.localizedDescription
+            }
+            gatekeeperFixInProgress = false
+            refreshSideScreen()
         }
     }
 
@@ -247,6 +292,53 @@ struct ManagedService: Identifiable, Sendable {
             let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
             throw ToolError.commandFailed(output.trimmingCharacters(in: .whitespacesAndNewlines))
         }
+    }
+
+    private nonisolated static func removeQuarantine(from appURL: URL) async throws {
+        do {
+            try runXattr(appURL)
+        } catch {
+            try runXattrWithAdminPrompt(appURL)
+        }
+    }
+
+    private nonisolated static func runXattr(_ appURL: URL) throws {
+        let process = Process()
+        let pipe = Pipe()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/xattr")
+        process.arguments = ["-cr", appURL.path]
+        process.standardOutput = pipe
+        process.standardError = pipe
+        try process.run()
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else {
+            let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+            throw ToolError.commandFailed(output.trimmingCharacters(in: .whitespacesAndNewlines))
+        }
+    }
+
+    private nonisolated static func runXattrWithAdminPrompt(_ appURL: URL) throws {
+        let command = "/usr/bin/xattr -cr \(shellQuote(appURL.path))"
+        let process = Process()
+        let pipe = Pipe()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/osascript")
+        process.arguments = ["-e", "do shell script \(appleScriptQuote(command)) with administrator privileges"]
+        process.standardOutput = pipe
+        process.standardError = pipe
+        try process.run()
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else {
+            let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+            throw ToolError.commandFailed(output.trimmingCharacters(in: .whitespacesAndNewlines))
+        }
+    }
+
+    private nonisolated static func shellQuote(_ value: String) -> String {
+        "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'"
+    }
+
+    private nonisolated static func appleScriptQuote(_ value: String) -> String {
+        "\"" + value.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"") + "\""
     }
 
     private nonisolated static func isLoaded(_ label: String) -> Bool {
